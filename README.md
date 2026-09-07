@@ -7,7 +7,10 @@ A responsive company website inspired by the supplied **Bridging Analog to Digit
 - Responsive navigation with a keyboard-accessible mobile menu.
 - Four expandable service groups covering all eight offerings in the deck.
 - Interactive time-allocation chart, based on the deck's illustrative 80/20 to 30/70 scenario.
-- Subtle pointer and scroll response on the bridge artwork, with a motion toggle and automatic reduced-motion support.
+- A timber-to-wireframe bridge reveal, with an opening sequence, scroll control, material slider, presets, and replay.
+- A stronger perspective response to pointer movement, with a motion toggle and automatic reduced-motion support.
+- A keyboard-accessible sector explorer that opens the relevant service.
+- An interactive manual-versus-automated enquiry workflow illustration.
 - Email and telephone links using the deck's contact details. The conversation buttons open the visitor's email application.
 - Local fonts and artwork, descriptive metadata, visible focus states, and core content that works without JavaScript.
 
@@ -41,7 +44,11 @@ Then open `http://localhost:3000`. No package installation is needed. The same s
 | --- | --- |
 | `dist/index.html` | Content, services, navigation, chart markup, contact links, and metadata |
 | `dist/styles.css` | Brand colors, typography, layout, responsive behavior, and motion styling |
-| `dist/app.js` | Mobile menu, accordion enhancement, interactive chart, and bridge motion |
+| `dist/app.js` | Mobile menu, accordions, interactive chart, and shared motion preference |
+| `dist/experience.css` | Reveal layout, responsive controls, sector explorer, and workflow styling |
+| `dist/reveal-model.js` | Independent timeline for scrolling, replay, manual input, and reduced motion |
+| `dist/bridge-reveal.js` | Bridge material masks, perspective, loading fallback, and reveal controls |
+| `dist/experience.js` | Sector tabs and the illustrative enquiry workflow |
 | `dist/assets/` | Local bridge artwork, extracted brand mark, and Manrope fonts |
 | `vercel.json` | Vercel output directory and response headers |
 | `.openai/hosting.json` | Identity and static-output settings for the private review site |
@@ -62,4 +69,22 @@ Design guidance consulted: [Anthropic frontend-design skill](https://github.com/
 
 ## Checks
 
-The delivery was checked for JavaScript syntax, valid asset references, working internal destinations, image/font integrity, and deployment archive integrity. Browser visual and end-to-end testing have not been performed in this environment. Review the private preview on your target devices before a public launch.
+Run the interaction-state tests without installing anything:
+
+```sh
+node --test tests/reveal-model.test.cjs
+```
+
+The tests cover interrupted playback, manual control, scroll direction, pause/resume, reduced motion, hidden tabs, and input bounds. Source checks cover JavaScript syntax, local asset references, internal destinations, and image integrity. Browser visual and end-to-end testing have not been performed in this environment. Review the branch preview on your target devices before merging.
+
+## Review the interactive bridge branch
+
+The `feature/bridge-reveal` branch is for reviewing the expanded interactions before merging into `main`. Open its pull request to find Vercel's preview link. The existing `vercel.json` works for this branch without changes.
+
+The hero uses two aligned material-state images and CSS perspective for a dimensional reveal. It runs a short opening sequence, then connects to scroll position. On larger, sufficiently tall screens, the hero stays in view for part of the transition. Smaller screens keep natural page flow. Dragging the slider or choosing a material preset takes manual control; **Follow scroll** reconnects it. **Replay** runs once and holds the digital frame.
+
+Reduced-motion preferences disable automatic playback, scroll-driven motion, and perspective. The slider and material presets remain available. If a material image fails to load, the original bridge image remains visible and the page retains its natural flow.
+
+The enquiry workflow is an illustration with no backend or outgoing requests. Manual mode advances one handoff per click; automation mode plays the configured sequence. Sector examples describe possible uses of the existing services, rather than client case studies.
+
+The analog and digital image states were created with the built-in image-generation tool as material edits of the original hero. Both prompts preserve the original camera, bridge silhouette, scale, placement, and dark background. The analog prompt specifies natural oak and physical cables; the digital prompt specifies an entirely cyan wireframe bridge with dark transparent interiors. Both exclude text and additional scenery. Final assets: `dist/assets/bridge-analog.webp` and `dist/assets/bridge-digital.webp`.
