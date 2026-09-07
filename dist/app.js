@@ -78,70 +78,28 @@ document.querySelector('.chart-control').hidden = false;
 range.addEventListener('input', updateAllocation);
 updateAllocation();
 
-// A light response to pointer and scroll gives the bridge depth, without WebGL.
-const hero = document.querySelector('.hero');
-const bridge = document.querySelector('.bridge-art');
+// Shared motion preference for the bridge and the interactive examples.
 const motionToggle = document.querySelector('#motion-toggle');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const precisePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 let userPaused = false;
-let animationFrame = 0;
-let pointerX = 0;
-let pointerY = 0;
-let heroVisible = true;
-
-function motionAllowed() { return !reducedMotion.matches && !userPaused && !document.hidden; }
-function resetBridge() {
-  bridge.style.setProperty('--pointer-x', '0px');
-  bridge.style.setProperty('--pointer-y', '0px');
-  bridge.style.setProperty('--rotate-x', '0deg');
-  bridge.style.setProperty('--rotate-y', '0deg');
-}
-function renderBridge() {
-  animationFrame = 0;
-  if (!motionAllowed() || !heroVisible) return;
-  const rect = hero.getBoundingClientRect();
-  const scrollDepth = Math.min(1, Math.max(0, -rect.top / rect.height));
-  bridge.style.setProperty('--pointer-x', `${pointerX * 8}px`);
-  bridge.style.setProperty('--pointer-y', `${pointerY * 6 + scrollDepth * 24}px`);
-  bridge.style.setProperty('--rotate-x', `${-pointerY * 1.1}deg`);
-  bridge.style.setProperty('--rotate-y', `${pointerX * 1.8}deg`);
-}
-function requestBridgeFrame() {
-  if (!animationFrame && motionAllowed() && heroVisible) animationFrame = requestAnimationFrame(renderBridge);
-}
-hero.addEventListener('pointermove', event => {
-  if (!precisePointer.matches || !motionAllowed()) return;
-  const rect = hero.getBoundingClientRect();
-  pointerX = (event.clientX - rect.left) / rect.width - 0.5;
-  pointerY = (event.clientY - rect.top) / rect.height - 0.5;
-  requestBridgeFrame();
-});
-hero.addEventListener('pointerleave', () => { pointerX = 0; pointerY = 0; requestBridgeFrame(); });
-window.addEventListener('scroll', requestBridgeFrame, { passive: true });
+window.archwoodMotion = {
+  get paused() { return userPaused || reducedMotion.matches; },
+  get reduced() { return reducedMotion.matches; }
+};
 function syncMotion() {
-  const paused = userPaused || reducedMotion.matches;
+  const paused = window.archwoodMotion.paused;
   document.body.classList.toggle('motion-paused', paused);
   motionToggle.hidden = reducedMotion.matches;
   motionToggle.setAttribute('aria-pressed', String(paused));
   motionToggle.querySelector('.motion-label').textContent = paused ? 'Enable motion' : 'Pause motion';
   motionToggle.querySelector('.motion-symbol').textContent = paused ? '▷' : 'Ⅱ';
-  if (paused) { cancelAnimationFrame(animationFrame); animationFrame = 0; resetBridge(); }
-  else requestBridgeFrame();
+  window.dispatchEvent(new CustomEvent('archwood:motionchange'));
 }
 motionToggle.addEventListener('click', () => { userPaused = !userPaused; syncMotion(); });
 reducedMotion.addEventListener('change', syncMotion);
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { cancelAnimationFrame(animationFrame); animationFrame = 0; }
-  else requestBridgeFrame();
-});
 syncMotion();
 
 if ('IntersectionObserver' in window) {
-  new IntersectionObserver(entries => {
-    heroVisible = entries[0].isIntersecting;
-    if (heroVisible) requestBridgeFrame();
-  }).observe(hero);
   const navLinks = [...navigation.querySelectorAll('a[href^="#"]')];
   const sectionObserver = new IntersectionObserver(entries => {
     for (const entry of entries) {

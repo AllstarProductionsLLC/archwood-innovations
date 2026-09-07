@@ -17,7 +17,11 @@
   <link rel="preload" href="assets/manrope-600.woff" as="font" type="font/woff" crossorigin>
   <link rel="preload" href="assets/bridge-hero.webp" as="image" fetchpriority="high">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="experience.css">
+  <script src="reveal-model.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="bridge-reveal.js" defer></script>
+  <script src="experience.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -36,7 +40,8 @@
   </header>
 
   <main id="main">
-    <section class="hero" id="top" aria-labelledby="hero-title">
+    <section class="hero-story" id="top" aria-labelledby="hero-title">
+     <div class="hero hero--reveal">
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="hero-copy">
         <p class="hero-intro">Your digital partner for the AI era</p>
@@ -44,15 +49,28 @@
         <p class="hero-description">Your ambition, connected to possibility.<br>We build the strategy, technology, and systems<br class="desktop-break"> that move your business forward.</p>
         <a class="button button-primary" href="#expertise">Explore what’s possible <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="hero-visual" data-parallax>
-        <img class="bridge-art" src="assets/bridge-hero.webp" width="1536" height="1024" alt="A crafted oak structure transforms into a luminous blue digital bridge." fetchpriority="high" decoding="async">
+      <div class="hero-visual">
+        <div class="bridge-camera">
+          <img class="bridge-poster" src="assets/bridge-hero.webp" width="1536" height="1024" alt="A crafted oak structure transforms into a luminous blue digital bridge." fetchpriority="high" decoding="async">
+          <div class="bridge-materials" aria-hidden="true">
+            <img class="bridge-state bridge-analog" src="assets/bridge-analog.webp" width="1536" height="1024" alt="" decoding="async">
+            <img class="bridge-state bridge-digital" src="assets/bridge-digital.webp" width="1536" height="1024" alt="" decoding="async">
+            <div class="bridge-scan"></div>
+          </div>
+        </div>
       </div>
-      <div class="hero-caption" aria-hidden="true"><span class="material-label">Rooted in the real world</span><span class="caption-line"></span><span class="digital-label">Built for what’s next</span></div>
+      <div class="bridge-console" hidden>
+        <div class="bridge-console-heading"><label for="bridge-range">Explore the bridge</label><output id="bridge-output" for="bridge-range">Analog</output></div>
+        <input id="bridge-range" type="range" min="0" max="100" value="0" step="1" aria-describedby="bridge-hint" aria-valuetext="Analog bridge">
+        <div class="bridge-stops" role="group" aria-label="Bridge material presets"><button type="button" data-bridge-stop="0">Analog</button><button type="button" data-bridge-stop="50">The connection</button><button type="button" data-bridge-stop="100">Digital</button></div>
+        <div class="bridge-playback"><p id="bridge-hint">Scroll to transform. Drag to explore.</p><div><button id="bridge-replay" type="button"><span aria-hidden="true">↻</span> Replay</button><button id="bridge-follow" type="button" aria-pressed="true">Scroll linked</button></div></div>
+      </div>
       <div class="hero-bottom">
         <a class="scroll-link" href="#approach"><span class="scroll-icon" aria-hidden="true">↓</span> A new perspective</a>
         <span class="hero-signoff">Human ambition. Digital advantage.</span>
         <button id="motion-toggle" class="motion-toggle" aria-pressed="false" hidden><span class="motion-symbol" aria-hidden="true">Ⅱ</span><span class="motion-label">Pause motion</span></button>
       </div>
+     </div>
     </section>
 
     <section class="approach section-wrap" id="approach" aria-labelledby="approach-title">
@@ -66,7 +84,18 @@
         </div>
       </div>
       <div class="intelligence-note"><span class="ai-monogram" aria-hidden="true">AI</span><p>We see intelligence as<br><strong>advantageous. Abundant.</strong></p><p class="intelligence-caption">Less time on routine.<br>More room for thinking, creating, and growing.</p></div>
-      <div class="sector-line"><span>Built around your world</span><ul aria-label="Sectors we serve"><li>Business</li><li>Education</li><li>Media</li><li>Technology</li><li>Finance</li></ul></div>
+      <div class="sector-line sector-fallback"><span>Built around your world</span><ul aria-label="Sectors we serve"><li>Business</li><li>Education</li><li>Media</li><li>Technology</li><li>Finance</li></ul></div>
+      <div class="sector-explorer" hidden>
+        <p class="sector-question">What could digital look like in your world?</p>
+        <div class="sector-tabs" role="tablist" aria-label="Explore your sector">
+          <button type="button" role="tab" id="sector-business" aria-selected="true" aria-controls="sector-panel" data-sector="business">Business</button>
+          <button type="button" role="tab" id="sector-education" aria-selected="false" aria-controls="sector-panel" tabindex="-1" data-sector="education">Education</button>
+          <button type="button" role="tab" id="sector-media" aria-selected="false" aria-controls="sector-panel" tabindex="-1" data-sector="media">Media</button>
+          <button type="button" role="tab" id="sector-technology" aria-selected="false" aria-controls="sector-panel" tabindex="-1" data-sector="technology">Technology</button>
+          <button type="button" role="tab" id="sector-finance" aria-selected="false" aria-controls="sector-panel" tabindex="-1" data-sector="finance">Finance</button>
+        </div>
+        <div id="sector-panel" class="sector-panel" role="tabpanel" aria-labelledby="sector-business" tabindex="0"><h3 id="sector-title">Connect the work behind the business.</h3><div><p id="sector-description">Bring enquiries, follow-ups, and day-to-day operations into a more connected flow, with tools built around your team.</p><a id="sector-link" class="text-link" href="#expertise">Explore the relevant expertise <span aria-hidden="true">↗</span></a></div></div>
+      </div>
     </section>
 
     <section class="expertise section-wrap" id="expertise" aria-labelledby="expertise-title">
@@ -75,22 +104,32 @@
         <p>Strategy, creation, and implementation.<br>Built around your business, with<br class="desktop-break"> room for what comes next.</p>
       </div>
       <div class="services">
-        <details class="service" name="expertise" open>
+        <details class="service" id="service-intelligence" name="expertise" open>
           <summary><span class="service-glyph" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M20 5 33 12.5v15L20 35 7 27.5v-15L20 5Zm0 0v30M7 12.5l26 15M33 12.5l-26 15"/></svg></span><span class="service-title">Intelligence &amp; custom software<span>AI consulting · Custom app development</span></span><span class="expand-icon" aria-hidden="true"></span></summary>
           <div class="service-content"><div class="service-description"><h3>Make AI work for your business.</h3><p>Start with a clear strategy. Then bring it to life with intelligent tools and bespoke software built for the way you work.</p><a class="text-link" href="mailto:info@archwoodinnovations.com?subject=AI%20and%20custom%20software%20enquiry">Talk about intelligence &amp; software <span aria-hidden="true">↗</span></a></div><div class="service-offerings"><article><h4>AI consulting</h4><p>Strategic integration, tailored AI roadmaps, and custom models developed around specific business needs.</p></article><article><h4>Custom app development</h4><p>Cross-platform mobile applications, web platforms, and scalable SaaS products that connect your ideas to everyday use.</p></article></div></div>
         </details>
-        <details class="service" name="expertise">
+        <details class="service" id="service-presence" name="expertise">
           <summary><span class="service-glyph" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><rect x="5" y="8" width="30" height="23" rx="2"/><path d="M5 14h30M15 35h10M20 31v4M9 11h2m2 0h2"/></svg></span><span class="service-title">Digital presence &amp; discovery<span>Website creation · SEO / GEO / AIO</span></span><span class="expand-icon" aria-hidden="true"></span></summary>
           <div class="service-content"><div class="service-description"><h3>Be seen. Make an impression.</h3><p>Your digital presence should feel like your brand and help the right people find their way to you.</p><a class="text-link" href="mailto:info@archwoodinnovations.com?subject=Website%20and%20discovery%20enquiry">Talk about your digital presence <span aria-hidden="true">↗</span></a></div><div class="service-offerings"><article><h4>Website creation</h4><p>Beautiful, functional websites with thoughtful user experiences, e-commerce, and payment integrations where you need them.</p></article><article><h4>SEO / GEO / AIO</h4><p>Search and AI-powered content strategies to strengthen discovery and connect with your audience at the right moment.</p></article></div></div>
         </details>
-        <details class="service" name="expertise">
+        <details class="service" id="service-marketing" name="expertise">
           <summary><span class="service-glyph" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M7 24V16l26-8v24L7 24Zm0 0 4 10h6l-3-8M27 10v20M4 18v4"/></svg></span><span class="service-title">Marketing &amp; social ecosystems<span>Digital marketing · Social media management</span></span><span class="expand-icon" aria-hidden="true"></span></summary>
           <div class="service-content"><div class="service-description"><h3>Connect attention to action.</h3><p>Bring your message, channels, and campaigns together in a digital ecosystem that grows with your brand.</p><a class="text-link" href="mailto:info@archwoodinnovations.com?subject=Marketing%20and%20social%20enquiry">Talk about reaching your audience <span aria-hidden="true">↗</span></a></div><div class="service-offerings"><article><h4>Digital marketing campaigns</h4><p>Targeted campaigns across Google and Microsoft Ads, with ongoing refinement informed by performance analytics.</p></article><article><h4>Social media management</h4><p>Strategic content and community management to develop a consistent brand presence across your social platforms.</p></article></div></div>
         </details>
-        <details class="service" name="expertise">
+        <details class="service" id="service-automation" name="expertise">
           <summary><span class="service-glyph" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><rect x="3" y="5" width="12" height="10" rx="2"/><rect x="25" y="25" width="12" height="10" rx="2"/><path d="M15 10h11a5 5 0 0 1 5 5v10M25 30H14a5 5 0 0 1-5-5V15m18 6 4 4 4-4M5 19l4-4 4 4"/></svg></span><span class="service-title">Automation &amp; conversations<span>Process automation · Custom chatbots</span></span><span class="expand-icon" aria-hidden="true"></span></summary>
           <div class="service-content"><div class="service-description"><h3>Less friction. More flow.</h3><p>Connect the repetitive steps, disconnected tools, and everyday conversations that take up your team’s time.</p><a class="text-link" href="mailto:info@archwoodinnovations.com?subject=Automation%20and%20chatbot%20enquiry">Talk about a smarter workflow <span aria-hidden="true">↗</span></a></div><div class="service-offerings"><article><h4>Process automation</h4><p>Custom workflows and robotic process automation to reduce manual steps, connect systems, and support operational growth.</p></article><article><h4>Custom chatbots</h4><p>Intelligent conversational tools integrated with websites, messaging apps, and CRMs to support customers and your team.</p></article></div></div>
         </details>
+      </div>
+      <div class="workflow-lab" hidden>
+        <div class="workflow-heading"><div><p class="workflow-kicker">A small example. A different way to work.</p><h3>Follow an enquiry from arrival to action.</h3></div><fieldset class="workflow-modes"><legend class="visually-hidden">How the example is handled</legend><label><input type="radio" name="workflow-mode" value="manual" checked><span>Manually</span></label><label><input type="radio" name="workflow-mode" value="connected"><span>With automation</span></label></fieldset></div>
+        <ol class="workflow-track" aria-label="Example enquiry workflow">
+          <li><span class="workflow-number" aria-hidden="true">01</span><h4>Enquiry arrives</h4><p>The starting point</p><span class="workflow-state">Waiting</span></li>
+          <li><span class="workflow-number" aria-hidden="true">02</span><h4>CRM updated</h4><p>Details in one place</p><span class="workflow-state">Waiting</span></li>
+          <li><span class="workflow-number" aria-hidden="true">03</span><h4>Reply drafted</h4><p>A response prepared</p><span class="workflow-state">Waiting</span></li>
+          <li><span class="workflow-number" aria-hidden="true">04</span><h4>Ready for review</h4><p>Your team takes it forward</p><span class="workflow-state">Waiting</span></li>
+        </ol>
+        <div class="workflow-bottom"><div><p id="workflow-status" role="status" aria-live="polite">Move through the example one manual step at a time.</p><p class="workflow-note">A workflow illustration. No messages or customer data are sent.</p></div><button type="button" id="workflow-run">Start the example <span aria-hidden="true">↗</span></button></div>
       </div>
     </section>
 
