@@ -10,7 +10,7 @@ A responsive company website inspired by the supplied **Bridging Analog to Digit
 - A timber-to-wireframe bridge reveal, with an opening sequence, scroll control, material slider, presets, and replay.
 - A stronger perspective response to pointer movement, with a motion toggle and automatic reduced-motion support.
 - A keyboard-accessible sector explorer that opens the relevant service.
-- An interactive manual-versus-automated enquiry workflow illustration.
+- An interactive manual-versus-automated inquiry workflow illustration.
 - Email and telephone links using the deck's contact details. The conversation buttons open the visitor's email application.
 - Local fonts and artwork, descriptive metadata, visible focus states, and core content that works without JavaScript.
 
@@ -48,7 +48,7 @@ Then open `http://localhost:3000`. No package installation is needed. The same s
 | `dist/experience.css` | Reveal layout, responsive controls, sector explorer, and workflow styling |
 | `dist/reveal-model.js` | Independent timeline for scrolling, replay, manual input, and reduced motion |
 | `dist/bridge-reveal.js` | Bridge material masks, perspective, loading fallback, and reveal controls |
-| `dist/experience.js` | Sector tabs and the illustrative enquiry workflow |
+| `dist/experience.js` | Sector tabs and the illustrative inquiry workflow |
 | `dist/assets/` | Local bridge artwork, extracted brand mark, and Manrope fonts |
 | `vercel.json` | Vercel output directory and response headers |
 | `.openai/hosting.json` | Identity and static-output settings for the private review site |
@@ -85,6 +85,12 @@ The hero uses two aligned material-state images and CSS perspective for a dimens
 
 Reduced-motion preferences disable automatic playback, scroll-driven motion, and perspective. The slider and material presets remain available. If a material image fails to load, the original bridge image remains visible and the page retains its natural flow.
 
-The enquiry workflow is an illustration with no backend or outgoing requests. Manual mode advances one handoff per click; automation mode plays the configured sequence. Sector examples describe possible uses of the existing services, rather than client case studies.
+The inquiry workflow is an illustration with no backend or outgoing requests. Manual mode advances one handoff per click; automation mode plays the configured sequence. Sector examples describe possible uses of the existing services, rather than client case studies.
 
 The analog and digital image states were created with the built-in image-generation tool as material edits of the original hero. Both prompts preserve the original camera, bridge silhouette, scale, placement, and dark background. The analog prompt specifies natural oak and physical cables; the digital prompt specifies an entirely cyan wireframe bridge with dark transparent interiors. Both exclude text and additional scenery. Final assets: `dist/assets/bridge-analog.webp` and `dist/assets/bridge-digital.webp`.
+
+## Scroll-linked impact and Archwood Studios
+
+The impact chart progresses from Manual (80/20) to Connected (30/70) as its bars move through the viewport. The slider takes manual control; **Follow scroll** reconnects it. It reuses the hero's tested timeline, respects Pause motion and reduced-motion preferences, and schedules updates only on scroll or resize. With reduced motion, the original connected scenario remains visible and the slider stays usable. The inquiry workflow still starts only through its existing controls.
+
+**Executive Tools** opens `/archwood-studios`, served by `dist/archwood-studios.html` through Vercel's clean URLs. A compact branded toolbar surrounds a full-height iframe loading `https://superslides-67ae4.firebaseapp.com/`. The toolbar includes a home link and an always-available new-tab fallback for sign-in or browser restrictions. The site's CSP explicitly permits this iframe origin. The Firebase page returned HTTP 200 without X-Frame-Options or CSP frame-ancestors when checked; future changes to that app's embedding policy or cross-site sign-in can affect the workspace independently of this repository.

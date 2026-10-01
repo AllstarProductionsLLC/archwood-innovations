@@ -268,3 +268,15 @@
   .bridge-scan { display: none; }
   .sector-tabs button { transition: none; }
 }
+
+/* Scroll-driven time allocation keeps the original chart and manual controls. */
+.chart-playback{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;font-size:.75rem}
+.chart-playback p{color:#426174}
+.chart-playback button{flex:none;color:#245b75;background:transparent;border:1px solid #759eaf;border-radius:3px;padding:7px 12px;font-size:.75rem;min-height:36px}
+.chart-playback button:hover:not(:disabled){background:#d9e7ed}
+.chart-playback button:disabled{opacity:.65}
+.chart-playback button:focus-visible{outline-color:#176a91}
+.nav-tools{white-space:nowrap}
+@media(min-width:761px) and (max-width:1100px){.main-navigation{gap:1.15rem;font-size:.8125rem}}
+@media(min-width:601px) and (max-width:760px){.main-navigation{gap:10px;font-size:.7rem}.main-navigation .nav-contact{padding-left:10px;gap:8px}.brand-name{font-size:.875rem}.brand img{width:32px}.brand{gap:8px}}
+@media(max-width:600px){body:not(.js-ready) .main-navigation{flex-wrap:wrap}.chart-playback{align-items:flex-start}.chart-playback p{max-width:180px}}
