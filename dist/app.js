@@ -22,7 +22,8 @@ menuButton.addEventListener('click', () => setMenu(menuButton.getAttribute('aria
 navigation.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
   setMenu(false);
   // Preserve a logical keyboard position after choosing a mobile menu destination.
-  const destination = document.querySelector(link.getAttribute('href'));
+  const href = link.getAttribute('href');
+  const destination = href.startsWith('#') ? document.querySelector(href) : null;
   if (destination && smallScreen.matches) {
     destination.setAttribute('tabindex', '-1');
     destination.focus({ preventScroll: true });
@@ -52,31 +53,6 @@ const services = [...document.querySelectorAll('.service')];
 services.forEach(service => service.addEventListener('toggle', () => {
   if (service.open) services.forEach(other => { if (other !== service) other.open = false; });
 }));
-
-// The deck's 80/20 and 30/70 allocation is an illustration, never a client claim.
-const range = document.querySelector('#connection-range');
-const growthValue = document.querySelector('#growth-value');
-const routineValue = document.querySelector('#routine-value');
-const growthBar = document.querySelector('#growth-bar');
-const routineBar = document.querySelector('#routine-bar');
-const allocationChart = document.querySelector('.allocation-chart');
-const connectionOutput = document.querySelector('#connection-output');
-
-function updateAllocation() {
-  const transition = Math.max(0, Math.min(100, Number(range.value)));
-  const growth = Math.round(20 + transition * 0.5);
-  const routine = 100 - growth;
-  growthValue.textContent = String(growth);
-  routineValue.textContent = String(routine);
-  growthBar.style.height = `${growth}%`;
-  routineBar.style.height = `${routine}%`;
-  connectionOutput.value = `${growth}% for strategic growth`;
-  range.setAttribute('aria-valuetext', `${growth} percent strategic growth, ${routine} percent routine work`);
-  allocationChart.setAttribute('aria-label', `Illustrative time allocation: before, 80 percent routine work and 20 percent strategic growth; connected scenario, ${routine} percent routine work and ${growth} percent strategic growth.`);
-}
-document.querySelector('.chart-control').hidden = false;
-range.addEventListener('input', updateAllocation);
-updateAllocation();
 
 // Shared motion preference for the bridge and the interactive examples.
 const motionToggle = document.querySelector('#motion-toggle');
