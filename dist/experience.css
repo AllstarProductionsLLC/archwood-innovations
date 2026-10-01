@@ -277,7 +277,6 @@
 .chart-playback button:disabled{opacity:.65}
 .chart-playback button:focus-visible{outline-color:#176a91}
 .nav-tools{white-space:nowrap}
-.main-navigation .nav-tools{color:var(--cyan)}
 @media(min-width:761px) and (max-width:1100px){.main-navigation{gap:1.15rem;font-size:.8125rem}}
 @media(min-width:601px) and (max-width:760px){.main-navigation{gap:10px;font-size:.7rem}.main-navigation .nav-contact{padding-left:10px;gap:8px}.brand-name{font-size:.875rem}.brand img{width:32px}.brand{gap:8px}}
 @media(max-width:600px){body:not(.js-ready) .main-navigation{flex-wrap:wrap}.chart-playback{align-items:flex-start}.chart-playback p{max-width:180px}}
