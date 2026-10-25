@@ -1,11 +1,11 @@
 # Archwood Innovations
 
-A responsive company website inspired by the supplied **Bridging Analog to Digital** pitch deck. Built with semantic HTML, CSS, and JavaScript, with no runtime dependencies or build step.
+A responsive company website inspired by the supplied **Bridging Analog to Digital** pitch deck. Built with semantic HTML, CSS, and JavaScript, with no third-party runtime dependencies or build step. The website security tool uses a Node.js Vercel Function.
 
 ## What works
 
 - Responsive navigation with a keyboard-accessible mobile menu.
-- Four expandable service groups covering all eight offerings in the deck.
+- Five expandable service groups, including cybersecurity, website reviews, patching support, system audits, and team training.
 - Interactive time-allocation chart, based on the deck's illustrative 80/20 to 30/70 scenario.
 - A timber-to-wireframe bridge reveal, with an opening sequence, scroll control, material slider, presets, and replay.
 - A stronger perspective response to pointer movement, with a motion toggle and automatic reduced-motion support.
@@ -30,13 +30,8 @@ Official references: [Importing a Git repository](https://vercel.com/docs/deploy
 
 ## Preview locally
 
-From the repository root:
+Run `npm run dev` from the repository root, then open `http://localhost:3000`. No package installation or API key is needed. This serves the static pages and the assessment API together. A static file server alone cannot run the assessment backend.
 
-```sh
-python3 -m http.server 3000 --directory dist
-```
-
-Then open `http://localhost:3000`. No package installation is needed. The same site can also be previewed by opening `dist/index.html` directly.
 
 ## Edit the site
 
@@ -94,3 +89,32 @@ The analog and digital image states were created with the built-in image-generat
 The impact chart progresses from Manual (80/20) to Connected (30/70) as its bars move through the viewport. The slider takes manual control; **Follow scroll** reconnects it. It reuses the hero's tested timeline, respects Pause motion and reduced-motion preferences, and schedules updates only on scroll or resize. With reduced motion, the original connected scenario remains visible and the slider stays usable. The inquiry workflow still starts only through its existing controls.
 
 **Executive Tools** opens the standalone website at `https://archwoodstudios.com/` in the current tab. The old `/archwood-studios` route redirects there through Vercel. The embedded app page and its iframe-specific CSP allowance have been removed.
+
+## Website security review
+
+The navigation uses title case consistently: Our Approach, Expertise, The Impact, Executive Tools, and Let’s Talk. The fifth expertise panel opens `/website-security` through **Test my website**. All service panels remain closed on initial load.
+
+The tool runs a real passive assessment through `api/security-scan.js`, with Quick (homepage) and Expanded (homepage plus up to two eligible, same-origin informational links). It makes ordinary HTTPS GET requests, does not log in, submit forms, probe hidden paths, enumerate ports, or test exploits. Its animated progress follows actual streamed server stages, rather than a timer. Reports include evidence, qualitative confidence, scope, an export, and an email contact link. Raw HTML and cookie values are never returned in the report. The app does not persist reports or submissions, although Vercel/platform access logs may still exist.
+
+### What the grade means
+
+Six basic response checks total 100 points: certificate-validated HTTPS (20), HSTS with positive max-age (20), a basic enforced CSP source restriction (20), framing protection (15), nosniff (15), and referrer policy (10). A=90+, B=80+, C=65+, D=50+, F=below 50. Expanded mode uses the weakest observed result per control. The score describes these public configuration controls only. It is not an overall security score. Cookie attributes, HTTP resource references, technology banners, and PHP advisory indications appear separately and do not change the configuration grade. An unassessable homepage produces no grade. The report identifies skipped pages and truncated markup.
+
+### PHP advisory rules
+
+The selected, curated PHP rules were checked against the vendor on October 25, 2026. They cover CVE-2026-109618 and CVE-2026-109619 using the published fixes 8.2.35, 8.3.36, 8.4.27, and 8.5.12, plus a configuration-only notice for CVE-2026-115560. These are advisory-specific thresholds, not an automatically updated latest-version feed. Hidden, conflicting, prerelease, and distributor-suffixed banners remain unknown. Affected-looking banners are only potential exposure, since the tool cannot verify vendor backports or runtime configuration. WordPress markup never establishes a PHP version. Keep `lib/security-review.cjs` and the page’s review date updated when advisories change.
+
+Primary sources:
+- https://www.php.net/archive/2026.php
+- https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w
+- https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp
+
+### Deployment and operational boundaries
+
+Keep Vercel's Root Directory at the repository root. The static output remains `dist`; the root `api` directory is discovered as a Node.js Function. `package.json` selects Node 22 and the function is allowed 60 seconds. There are no AI, Gemini, or scanner API credentials to configure.
+
+Requests are HTTPS-only on the standard port. Inputs are normalized to the homepage, and credentials/IP literals/local hostnames are rejected. Every DNS address must be public, the validated addresses are pinned into the actual HTTPS request, and redirects repeat validation. Expanded requests cannot leave the homepage’s final origin. Each response is capped at 256 KiB, redirects are limited, TLS verification remains enabled, and the review has a 35-second deadline. Private, loopback, link-local, reserved, multicast, and IPv4-mapped IPv6 destinations are blocked.
+
+The API requires JSON, same-site browser requests, and an authorization declaration. It has per-instance limits of five requests per client hash per ten minutes, eight concurrent requests, and bounded rate-limit state. Client hashes are held in memory only and expire. **These limits are not distributed:** cold starts and additional Vercel instances have independent counters. For a high-traffic launch, enforce shared rate limits with the Vercel Firewall or a durable rate-limit service. Provider log retention and traffic costs are controlled in Vercel. No user input is passed to a shell or executed, and report rendering uses text nodes.
+
+Run `npm test` for controller, SSRF, redirect/DNS pinning, report grading, PHP boundaries, and API tests. Browser verification may be limited by Vercel preview authentication. Review the preview on target devices before merging.

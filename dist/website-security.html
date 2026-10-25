@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#05090e">
+  <meta name="description" content="Get an evidence-based public website security review from Archwood Innovations. Review browser protections, public risk signals, and selected PHP advisories.">
+  <title>Website Security Review | Archwood Innovations</title>
+  <link rel="icon" type="image/png" href="/assets/archwood-mark.png">
+  <link rel="preload" href="/assets/manrope-400.woff" as="font" type="font/woff" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/security.css">
+  <script src="/security.js" defer></script>
+</head>
+<body class="security-page">
+  <a class="skip-link" href="#review-form">Skip to website review</a>
+  <header class="security-header">
+    <a class="brand" href="/" aria-label="Archwood Innovations home"><img src="/assets/archwood-mark.png" width="54" height="44" alt=""><span class="brand-name">Archwood<span>Innovations</span></span></a>
+    <nav aria-label="Security page navigation"><a href="/#expertise">Connected Expertise</a><a href="mailto:info@archwoodinnovations.com?subject=Website%20security%20inquiry">Let’s Talk <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main>
+    <section class="security-intro section-wrap" aria-labelledby="review-title">
+      <div class="security-copy">
+        <p class="security-eyebrow"><span aria-hidden="true"></span> Cybersecurity &amp; Cyber Defense</p>
+        <h1 id="review-title">A clearer view of<br>your digital<br><em>defenses.</em></h1>
+        <p class="security-lead">See what your website reveals. Understand what needs a closer look. Make your next move with confidence.</p>
+        <div class="security-scope"><span>01 / Observe</span><span>02 / Assess</span><span>03 / Understand</span></div>
+      </div>
+      <div class="security-console" id="security-console">
+        <div class="console-top"><span><i aria-hidden="true"></i> Archwood / Security Review</span><button id="animation-toggle" type="button" aria-pressed="false" hidden>Pause animation</button></div>
+        <div class="defense-visual" aria-hidden="true">
+          <div class="defense-grid"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="radar-sweep"></div>
+          <svg class="defense-shield" viewBox="0 0 240 260" fill="none"><defs><linearGradient id="shield-color" x1="20" y1="0" x2="220" y2="260" gradientUnits="userSpaceOnUse"><stop stop-color="#c79667"/><stop offset=".45" stop-color="#62d4ff"/><stop offset="1" stop-color="#24789b"/></linearGradient></defs><path class="shield-glass" d="m120 18 83 32v76c0 55-40 94-83 116-43-22-83-61-83-116V50l83-32Z"/><path d="m120 18 83 32v76c0 55-40 94-83 116-43-22-83-61-83-116V50l83-32Z" stroke="url(#shield-color)" stroke-width="1.5"/><path d="m120 37 66 25v64c0 43-29 77-66 98-37-21-66-55-66-98V62l66-25Z" stroke="#62d4ff" stroke-opacity=".2"/><path d="M120 19v223M37 94h166M46 159h148M68 195h104M65 40l110 165M175 40 65 205M37 94l149 32M203 94 54 126" stroke="#62d4ff" stroke-opacity=".15"/><path d="m89 126 21 21 43-47" stroke="#87dcf9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="37" cy="94" r="3" fill="#c79667"/><circle cx="203" cy="94" r="3" fill="#62d4ff"/><circle cx="120" cy="242" r="3" fill="#62d4ff"/></svg>
+          <span class="visual-coordinate coordinate-left">PUBLIC<br>PERIMETER</span><span class="visual-coordinate coordinate-right">EVIDENCE<br>OVER ASSUMPTIONS</span>
+        </div>
+        <div class="console-bottom"><span id="console-state">Ready when you are</span><span class="console-code">AW / 05</span></div>
+      </div>
+      <div class="assessment-panel" id="assessment-panel">
+        <div class="assessment-heading"><div><p class="security-eyebrow">Start with your website</p><h2>A first look. A useful next step.</h2></div><p>Public pages only.<br>No sign-in or API key needed.</p></div>
+        <noscript><p class="form-error">Enable JavaScript to run a review, or <a href="mailto:info@archwoodinnovations.com">contact our team</a>.</p></noscript>
+        <form id="review-form">
+          <label class="url-label" for="website-url">Website address</label>
+          <div class="url-row"><div class="url-input-wrap"><span aria-hidden="true">https://</span><input id="website-url" name="website" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="yourcompany.com" maxlength="2048" required aria-describedby="url-help"></div><button class="button button-primary" id="review-submit" type="submit" disabled>Review my website <span aria-hidden="true">↗</span></button></div>
+          <p id="url-help" class="input-help">We review the HTTPS homepage. Paths, queries, and sign-in details are not used.</p>
+          <fieldset class="review-modes"><legend>Choose your review</legend><label><input type="radio" name="mode" value="quick" checked><span><strong>Quick review</strong><small>Homepage &amp; public security signals</small></span></label><label><input type="radio" name="mode" value="expanded"><span><strong>Expanded review</strong><small>Up to 3 public pages on the same site</small></span></label></fieldset>
+          <div class="review-consent"><label><input id="authorized" type="checkbox" required> I own this website or have permission to review it.</label><span>A passive review. No exploit attempts.</span></div>
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+        </form>
+        <div id="review-progress" class="review-progress" hidden>
+          <div class="progress-heading"><p id="progress-status" role="status" aria-live="polite">Preparing your review</p><button id="cancel-review" type="button">Cancel review</button></div>
+          <progress id="scan-progress" max="6" value="0" aria-label="Review stages completed"></progress>
+          <ol id="review-stages"><li>Validate address</li><li>Read public pages</li><li>Collect evidence</li><li>Review protections</li><li>Check PHP advisories</li><li>Build report</li></ol>
+          <p class="input-help">Progress follows completed review stages. Some websites take longer or limit automated access.</p>
+        </div>
+      </div>
+    </section>
+    <section id="review-results" class="review-results section-wrap" aria-labelledby="results-title" hidden tabindex="-1">
+      <div class="results-heading"><div><p class="security-eyebrow">Your website / In focus</p><h2 id="results-title">The signals. The next steps.</h2><p id="report-target"></p></div><button id="download-report" class="outline-button" type="button">Download report <span aria-hidden="true">↓</span></button></div>
+      <div class="report-summary"><div class="grade-card"><div id="grade-ring" class="grade-ring"><strong id="report-grade"></strong></div><div><h3>Public configuration grade</h3><p id="report-score"></p><p class="grade-disclaimer">Six basic HTTPS and header controls.<br>This is not an overall security rating.</p></div></div><dl class="report-metrics"><div><dt>Pages reviewed</dt><dd id="report-pages"></dd></div><div><dt>Configuration gaps</dt><dd id="report-gaps"></dd></div><div><dt>PHP runtime</dt><dd id="report-php"></dd></div></dl></div>
+      <section class="php-panel" aria-labelledby="php-title"><div class="php-heading"><div><p class="security-eyebrow">Advisory watch / PHP</p><h3 id="php-title">A version is a clue.<br>Patch status needs evidence.</h3></div><span id="php-status" class="finding-badge"></span></div><p id="php-summary"></p><div id="php-advisories" class="php-advisories"></div><p id="php-baselines" class="input-help"></p><p class="input-help">Selected advisories reviewed October 25, 2026. This is not a live CVE feed. A hidden version means unknown, not secure.</p></section>
+      <div class="findings-heading"><h3>What we observed</h3><div class="finding-filters" role="group" aria-label="Filter report findings"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="attention" aria-pressed="false">Needs attention</button><button type="button" data-filter="observed" aria-pressed="false">Observed</button></div></div>
+      <div id="finding-list" class="finding-list"></div>
+      <p id="no-findings" class="empty-findings" hidden>No findings in this view.</p>
+      <details class="coverage-panel" open><summary>Coverage, evidence &amp; limits <span aria-hidden="true">+</span></summary><ul id="report-coverage"></ul><div id="report-page-list"></div></details>
+      <div class="security-contact"><div><p class="security-eyebrow">A partner for what comes next</p><h2>Turn visibility<br>into confidence.</h2><p>Have your team or hosting provider review these findings. If you’d like a partner for security reviews, patching, system audits, or team training, we’re here to help.</p></div><a id="report-contact" class="button button-primary" href="mailto:info@archwoodinnovations.com?subject=Website%20security%20review">Talk to Archwood <span aria-hidden="true">↗</span></a></div>
+    </section>
+    <section class="security-method section-wrap" aria-labelledby="method-title"><div><p class="security-eyebrow">Clear scope. Useful evidence.</p><h2 id="method-title">Understand the surface.<br>Know what’s beneath it.</h2></div><div class="method-grid"><article><span>01</span><h3>Public protections</h3><p>HTTPS, browser protection headers, returned cookie attributes, and resource references in public HTML.</p></article><article><span>02</span><h3>Version-based signals</h3><p>Disclosed PHP versions compared with selected vendor advisories. Possible exposure is labeled for verification.</p></article><article><span>03</span><h3>A starting point</h3><p>Quick and expanded reviews are passive checks. A deeper, authorized assessment can examine application and system risks.</p></article></div></section>
+  </main>
+  <footer class="security-footer section-wrap"><a href="/">← Back to Archwood Innovations</a><a href="mailto:info@archwoodinnovations.com">info@archwoodinnovations.com</a></footer>
+</body>
+</html>
