@@ -4,13 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#05090e">
-  <meta name="description" content="Get an evidence-based public website security review from Archwood Innovations. Review browser protections, public risk signals, and selected PHP advisories.">
-  <title>Website Security Review | Archwood Innovations</title>
+  <meta name="description" content="Run a free website security check. Get a clear public-security snapshot, then unlock your detailed report and expanded review by email.">
+  <link rel="canonical" href="https://archwoodinnovations.com/website-security">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Archwood Innovations">
+  <meta property="og:title" content="Free Website Security Check | Archwood Innovations">
+  <meta property="og:description" content="See what your website reveals. Get a free security snapshot, practical next steps, and an optional detailed report by email.">
+  <meta property="og:url" content="https://archwoodinnovations.com/website-security">
+  <meta property="og:image" content="https://archwoodinnovations.com/assets/website-security-share.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Archwood Innovations: Free website security check. A clearer view of your digital defenses.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Website Security Check | Archwood Innovations">
+  <meta name="twitter:description" content="A free public-security snapshot, with an email unlock for the full report and expanded review.">
+  <meta name="twitter:image" content="https://archwoodinnovations.com/assets/website-security-share.png">
+  <meta name="referrer" content="no-referrer">
+  <title>Free Website Security Check | Archwood Innovations</title>
   <link rel="icon" type="image/png" href="/assets/archwood-mark.png">
   <link rel="preload" href="/assets/manrope-400.woff" as="font" type="font/woff" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/security.css">
   <script src="/security.js" defer></script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Free Website Security Check", "url": "https://archwoodinnovations.com/website-security", "description": "Free passive website security snapshot, with an email unlock for a detailed report and expanded review.", "isPartOf": {"@type": "WebSite", "name": "Archwood Innovations", "url": "https://archwoodinnovations.com/"}, "about": {"@type": "Service", "name": "Website security review", "provider": {"@type": "Organization", "name": "Archwood Innovations", "url": "https://archwoodinnovations.com/"}}}</script>
 </head>
 <body class="security-page">
   <a class="skip-link" href="#review-form">Skip to website review</a>
@@ -22,8 +37,8 @@
     <section class="security-intro section-wrap" aria-labelledby="review-title">
       <div class="security-copy">
         <p class="security-eyebrow"><span aria-hidden="true"></span> Cybersecurity &amp; Cyber Defense</p>
-        <h1 id="review-title">A clearer view of<br>your digital<br><em>defenses.</em></h1>
-        <p class="security-lead">See what your website reveals. Understand what needs a closer look. Make your next move with confidence.</p>
+        <h1 id="review-title">Free website<br><em>security check.</em></h1>
+        <p class="security-lead">Understand your website’s public security signals. Start with a free snapshot, then unlock a detailed report and expanded review by email.</p>
         <div class="security-scope"><span>01 / Observe</span><span>02 / Assess</span><span>03 / Understand</span></div>
       </div>
       <div class="security-console" id="security-console">
@@ -36,14 +51,15 @@
         <div class="console-bottom"><span id="console-state">Ready when you are</span><span class="console-code">AW / 05</span></div>
       </div>
       <div class="assessment-panel" id="assessment-panel">
-        <div class="assessment-heading"><div><p class="security-eyebrow">Start with your website</p><h2>A first look. A useful next step.</h2></div><p>Public pages only.<br>No sign-in or API key needed.</p></div>
+        <div class="assessment-heading"><div><p class="security-eyebrow">Start with your website</p><h2>A first look. A useful next step.</h2></div><p>Public pages only.<br>Free snapshot. No email required.</p></div>
         <noscript><p class="form-error">Enable JavaScript to run a review, or <a href="mailto:info@archwoodinnovations.com">contact our team</a>.</p></noscript>
         <form id="review-form">
           <label class="url-label" for="website-url">Website address</label>
-          <div class="url-row"><div class="url-input-wrap"><span aria-hidden="true">https://</span><input id="website-url" name="website" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="yourcompany.com" maxlength="2048" required aria-describedby="url-help"></div><button class="button button-primary" id="review-submit" type="submit" disabled>Review my website <span aria-hidden="true">↗</span></button></div>
+          <div class="url-row"><div class="url-input-wrap"><span aria-hidden="true">https://</span><input id="website-url" name="website" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="yourcompany.com" maxlength="2048" required aria-describedby="url-help"></div><button class="button button-primary" id="review-submit" type="submit" disabled>Get my free snapshot <span aria-hidden="true">↗</span></button></div>
           <p id="url-help" class="input-help">We review the HTTPS homepage. Paths, queries, and sign-in details are not used.</p>
-          <fieldset class="review-modes"><legend>Choose your review</legend><label><input type="radio" name="mode" value="quick" checked><span><strong>Quick review</strong><small>Homepage &amp; public security signals</small></span></label><label><input type="radio" name="mode" value="expanded"><span><strong>Expanded review</strong><small>Up to 3 public pages on the same site</small></span></label></fieldset>
+          <div class="snapshot-inclusions"><span>Homepage check</span><span>Clear next steps</span><span>Optional full report by email</span></div>
           <div class="review-consent"><label><input id="authorized" type="checkbox" required> I own this website or have permission to review it.</label><span>A passive review. No exploit attempts.</span></div>
+          <p class="input-help">We keep a record of submitted website addresses and review outcomes. <a href="/security-privacy">How we use your information</a></p>
           <p class="form-error" id="form-error" role="alert" hidden></p>
         </form>
         <div id="review-progress" class="review-progress" hidden>
@@ -55,17 +71,35 @@
       </div>
     </section>
     <section id="review-results" class="review-results section-wrap" aria-labelledby="results-title" hidden tabindex="-1">
-      <div class="results-heading"><div><p class="security-eyebrow">Your website / In focus</p><h2 id="results-title">The signals. The next steps.</h2><p id="report-target"></p></div><button id="download-report" class="outline-button" type="button">Download report <span aria-hidden="true">↓</span></button></div>
-      <div class="report-summary"><div class="grade-card"><div id="grade-ring" class="grade-ring"><strong id="report-grade"></strong></div><div><h3>Public configuration grade</h3><p id="report-score"></p><p class="grade-disclaimer">Six basic HTTPS and header controls.<br>This is not an overall security rating.</p></div></div><dl class="report-metrics"><div><dt>Pages reviewed</dt><dd id="report-pages"></dd></div><div><dt>Configuration gaps</dt><dd id="report-gaps"></dd></div><div><dt>PHP runtime</dt><dd id="report-php"></dd></div></dl></div>
+      <div class="results-heading"><div><p class="security-eyebrow">Your free snapshot</p><h2 id="results-title">A clearer next step.</h2><p id="report-target"></p></div></div>
+      <div id="snapshot" class="snapshot" data-tone="balanced">
+        <div class="snapshot-top"><span id="snapshot-label" class="finding-badge"></span><span class="snapshot-scope">Initial public checks</span></div>
+        <h3 id="snapshot-title"></h3><p id="snapshot-body"></p>
+        <dl class="snapshot-metrics"><div><dt>Basic protections observed</dt><dd id="snapshot-observed"></dd></div><div><dt>Configuration items to review</dt><dd id="snapshot-gaps"></dd></div><div><dt>Pages checked</dt><dd id="snapshot-pages"></dd></div></dl>
+        <ul id="snapshot-highlights"></ul><p id="priority-note" class="priority-note" hidden></p>
+        <div class="snapshot-action"><a id="snapshot-contact" class="button button-primary" href="mailto:info@archwoodinnovations.com"></a><p>We can help verify the findings and prioritize what matters.</p></div>
+        <p id="snapshot-caveat" class="snapshot-caveat"></p>
+      </div>
+      <section class="report-unlock" id="report-unlock" aria-labelledby="unlock-title">
+        <div><p class="security-eyebrow">Your next layer of insight</p><h3 id="unlock-title">Keep the evidence.<br>Go a little deeper.</h3><p>Get a private report link by email. Unlock detailed findings, a downloadable report, and one expanded public review of up to three pages.</p><ul><li>No payment or account to create</li><li>No automatic marketing subscription</li></ul></div>
+        <form id="report-email-form"><label for="report-email">Your email address</label><input id="report-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@company.com" required><div class="form-trap" aria-hidden="true"><label for="report-fax">Leave blank</label><input id="report-fax" type="text" name="fax" tabindex="-1" autocomplete="off"></div><label class="help-consent"><input id="wants-help" type="checkbox"> I’d like Archwood to contact me about these findings. <span>(Optional)</span></label><p class="input-help">Your email and report request will be shared with Archwood. Open the emailed link to confirm the request. <a href="/security-privacy">Privacy details</a></p><button id="email-submit" class="button button-primary" type="submit">Email my report link <span aria-hidden="true">↗</span></button><p id="email-status" role="status" aria-live="polite" class="input-help"></p><p id="email-error" role="alert" class="form-error" hidden></p></form>
+      </section>
+      <section id="full-report" class="full-report" aria-labelledby="full-report-title" hidden>
+      <div class="full-report-heading"><div><p class="security-eyebrow">Your email report / Unlocked</p><h3 id="full-report-title">The details, when you need them.</h3><p>Open any panel to review the evidence and limits.</p></div><div class="report-actions"><button id="expand-review" class="outline-button" type="button">Run expanded review</button><button id="download-report" class="outline-button" type="button">Download full report <span aria-hidden="true">↓</span></button></div></div>
+      <p id="expanded-status" class="input-help" role="status" aria-live="polite"></p>
+      <p id="report-action-error" class="form-error" role="alert" hidden></p>
+      <details class="php-disclosure"><summary>PHP advisory review <span aria-hidden="true">+</span></summary>
       <section class="php-panel" aria-labelledby="php-title"><div class="php-heading"><div><p class="security-eyebrow">Advisory watch / PHP</p><h3 id="php-title">A version is a clue.<br>Patch status needs evidence.</h3></div><span id="php-status" class="finding-badge"></span></div><p id="php-summary"></p><div id="php-advisories" class="php-advisories"></div><p id="php-baselines" class="input-help"></p><p class="input-help">Selected advisories reviewed October 25, 2026. This is not a live CVE feed. A hidden version means unknown, not secure.</p></section>
+      </details>
       <div class="findings-heading"><h3>What we observed</h3><div class="finding-filters" role="group" aria-label="Filter report findings"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="attention" aria-pressed="false">Needs attention</button><button type="button" data-filter="observed" aria-pressed="false">Observed</button></div></div>
       <div id="finding-list" class="finding-list"></div>
       <p id="no-findings" class="empty-findings" hidden>No findings in this view.</p>
-      <details class="coverage-panel" open><summary>Coverage, evidence &amp; limits <span aria-hidden="true">+</span></summary><ul id="report-coverage"></ul><div id="report-page-list"></div></details>
-      <div class="security-contact"><div><p class="security-eyebrow">A partner for what comes next</p><h2>Turn visibility<br>into confidence.</h2><p>Have your team or hosting provider review these findings. If you’d like a partner for security reviews, patching, system audits, or team training, we’re here to help.</p></div><a id="report-contact" class="button button-primary" href="mailto:info@archwoodinnovations.com?subject=Website%20security%20review">Talk to Archwood <span aria-hidden="true">↗</span></a></div>
+      <details class="coverage-panel"><summary>Coverage, evidence &amp; limits <span aria-hidden="true">+</span></summary><ul id="report-coverage"></ul><div id="report-page-list"></div></details>
+      </section>
     </section>
     <section class="security-method section-wrap" aria-labelledby="method-title"><div><p class="security-eyebrow">Clear scope. Useful evidence.</p><h2 id="method-title">Understand the surface.<br>Know what’s beneath it.</h2></div><div class="method-grid"><article><span>01</span><h3>Public protections</h3><p>HTTPS, browser protection headers, returned cookie attributes, and resource references in public HTML.</p></article><article><span>02</span><h3>Version-based signals</h3><p>Disclosed PHP versions compared with selected vendor advisories. Possible exposure is labeled for verification.</p></article><article><span>03</span><h3>A starting point</h3><p>Quick and expanded reviews are passive checks. A deeper, authorized assessment can examine application and system risks.</p></article></div></section>
+    <section class="security-faq section-wrap" aria-labelledby="faq-title"><p class="security-eyebrow">Before you check</p><h2 id="faq-title">Website security, clearly explained.</h2><details><summary>What does the free website security check include?</summary><p>A passive review of your public HTTPS homepage, basic browser-protection headers, and selected public risk signals. Your free snapshot shows observed protections, items to review, and useful next steps.</p></details><details><summary>What do I get by email?</summary><p>A private, seven-day report link that confirms your request and unlocks detailed evidence, an HTML report you can download or print, and one expanded review of up to three public pages. No payment is required.</p></details><details><summary>Does a positive result mean my website is secure?</summary><p>No. These are initial public checks with limited coverage. Hidden software, private settings, authenticated areas, and many application vulnerabilities cannot be assessed this way. Positive results can miss risks; risk flags can need further verification.</p></details><details><summary>Can this check tell whether my PHP installation is patched?</summary><p>It can compare a publicly advertised version with selected vendor advisories. Hidden versions, vendor backports, and internal settings need verification by your host or security team. It never confirms exploitability from a banner alone.</p></details><details><summary>Can Archwood help with the next steps?</summary><p>Yes. Contact us for a deeper, authorized assessment, help prioritizing findings, patching support, system audits, or cybersecurity training. You can also take the evidence to your own team or hosting provider.</p></details></section>
   </main>
-  <footer class="security-footer section-wrap"><a href="/">← Back to Archwood Innovations</a><a href="mailto:info@archwoodinnovations.com">info@archwoodinnovations.com</a></footer>
+  <footer class="security-footer section-wrap"><a href="/">← Back to Archwood Innovations</a><a href="/security-privacy">Review Privacy</a><a href="mailto:info@archwoodinnovations.com">info@archwoodinnovations.com</a></footer>
 </body>
 </html>
