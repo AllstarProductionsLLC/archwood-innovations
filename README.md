@@ -1,6 +1,6 @@
 # Archwood Innovations
 
-A responsive company website inspired by the supplied **Bridging Analog to Digital** pitch deck. Built with semantic HTML, CSS, and JavaScript, with no third-party runtime dependencies or build step. The website security tool uses a Node.js Vercel Function.
+A responsive company website inspired by the supplied **Bridging Analog to Digital** pitch deck. Built with semantic HTML, CSS, and JavaScript, with a static frontend and no build step. The server uses pinned Google Cloud authentication and Firestore libraries. The website security tool uses a Node.js Vercel Function.
 
 ## What works
 
@@ -14,14 +14,14 @@ A responsive company website inspired by the supplied **Bridging Analog to Digit
 - Email and telephone links using the deck's contact details. The conversation buttons open the visitor's email application.
 - Local fonts and artwork, descriptive metadata, visible focus states, and core content that works without JavaScript.
 
-The website security check includes a server-side lead and report workflow using Supabase and Resend. Those services require environment configuration before use. There is no account system, billing, advertising analytics, or external client script. See `docs/security-lead-setup.md` before merging the lead-generation branch.
+The website security check includes a server-side lead and report workflow using Google Cloud Firestore and Google Workspace Gmail. Those services require environment configuration before use. There is no account system, billing, advertising analytics, or external client script. See `docs/security-lead-setup.md` before merging the lead-generation branch.
 
 ## Deploy on Vercel
 
 1. Add these files to a GitHub repository, preserving the folder structure.
 2. In Vercel, create a project and import that repository.
 3. Keep the repository root as the Root Directory. Use **Other** as the Framework Preset.
-4. Keep the Build Command and Install Command empty. The included `vercel.json` sets the Output Directory to `dist`.
+4. Keep the Build Command empty and use `npm ci` as the Install Command. The included `vercel.json` sets the Output Directory to `dist`.
 5. Deploy. Connect your domain in Vercel when you are ready.
 
 Once the GitHub repository is connected, subsequent pushes to its production branch trigger Vercel deployments according to your Vercel Git settings.
@@ -30,7 +30,7 @@ Official references: [Importing a Git repository](https://vercel.com/docs/deploy
 
 ## Preview locally
 
-Run `npm run dev` from the repository root, then open `http://localhost:3000`. No package installation is needed. Supabase and Resend configuration is documented in `docs/security-lead-setup.md`. This serves the static pages and the assessment API together. A static file server alone cannot run the assessment backend.
+Run `npm ci`, then `npm run dev` from the repository root, then open `http://localhost:3000`. Google Cloud and Workspace configuration is documented in `docs/security-lead-setup.md`. This serves the static pages and the assessment API together. A static file server alone cannot run the assessment backend.
 
 
 ## Edit the site
@@ -96,15 +96,17 @@ The fifth expertise panel links to `/website-security`. The public page preserve
 
 The large letter grade is replaced with descriptive states and counts. Green is encouraging; blue/amber recommend review; red is reserved for a possible critical PHP version match, with explicit uncertainty. Missing headers alone are not presented as proof of danger. The curated PHP advisory rules remain dated October 25, 2026 and are not a live CVE feed.
 
-Every accepted valid scan is recorded in Supabase before outbound requests, including scans that later fail or are interrupted. Email requests and optional requests for help are separate records; owner notifications are sent when a private report link is opened. The system never silently runs an unrecorded scan if storage is unavailable. It does not subscribe visitors to marketing.
+Every accepted valid scan is recorded in Firestore before outbound requests, including scans that later fail or are interrupted. Email requests and optional requests for help are separate records; owner notifications are sent when a private report link is opened. The system never silently runs an unrecorded scan if storage is unavailable. It does not subscribe visitors to marketing.
 
-**Activation is required:** create the database using `db/security-leads.sql`, configure Supabase server credentials and Resend's verified sender in Vercel, and set the retention cron secret. Preview/Production deployments do not inherit credentials from the GitHub connector. No AI API key is needed.
+**Activation is required:** create the dedicated Firestore database and deploy its rules/index, configure keyless Google Cloud access and send-only Gmail OAuth in Vercel, and set the retention cron secret. Preview/Production deployments do not inherit credentials from the GitHub connector. No AI API key is needed.
 
 - `docs/security-lead-setup.md`: exact activation, private lead-list views, retention, provider behavior, limits, and test checklist.
 - `docs/security-funnel-design.md`: research, free/email tier decision, conditional colors/CTAs, and SEO/share strategy.
 - `/security-preview`: clearly labeled, noindex sample states for visual review without credentials. No scans, collection, or email occur on that page.
 - `/security-privacy`: public information-use and assessment-scope notice.
 
-The existing public-only DNS pinning, redirect validation, verified TLS, body/time bounds, and passive request restrictions remain in place. Expanded requests are now gated on an opened, unexpired email-report link, not just hidden in the UI. Database atomic functions provide shared request and expansion limits. Private tokens are generated securely and stored only as hashes. A report link is a bearer credential and should be kept private.
+The existing public-only DNS pinning, redirect validation, verified TLS, body/time bounds, and passive request restrictions remain in place. Expanded requests are now gated on an opened, unexpired email-report link, not just hidden in the UI. Firestore transactions provide shared request and expansion limits. Private tokens are generated securely and stored only as hashes. Firestore also records Gmail recipients, message/thread IDs, and acceptance/uncertainty states. A report link is a bearer credential and should be kept private.
 
-Run `npm test` for existing interaction, scan transport, PHP boundaries, summary tones, gate authorization, persistence failures, email acceptance, and report escaping tests. Provider/database tests use injected responses; the SQL and real email delivery require validation after credentials are supplied. Vercel preview authentication can prevent browser verification in this environment. Review the branch on target devices before merging.
+Run `npm test` for existing interaction, scan transport, PHP boundaries, summary tones, gate authorization, persistence failures, email acceptance, and report escaping tests. Provider/database tests use injected responses; real Google IAM/rules/indexes and email delivery require validation after credentials are supplied. Vercel preview authentication can prevent browser verification in this environment. Review the branch on target devices before merging.
+
+Cybersecurity & cyber defense is first in the homepage expertise list. The remaining service panels retain their order, wording, and links. The Google integration uses Vercel OIDC federation for Firestore and a dedicated Workspace user’s Gmail send-only OAuth grant. Domain-wide mailbox delegation and service-account private keys are not used.

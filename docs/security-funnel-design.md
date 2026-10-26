@@ -31,8 +31,13 @@ A clear public page title/H1, canonical URL, descriptive static copy and FAQ, re
 - Google Search Central, title links: https://developers.google.com/search/docs/appearance/title-link
 - Google Search Central, sitemaps: https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap
 - Open Graph protocol: https://ogp.me/
-- Supabase, securing the API: https://supabase.com/docs/guides/api/securing-your-api
-- Resend, email API: https://resend.com/docs/api-reference/emails/send-email
-- Resend, idempotency: https://resend.com/docs/dashboard/emails/idempotency-keys
+- Firestore transactions: https://firebase.google.com/docs/firestore/manage-data/transactions
+- Gmail sending: https://developers.google.com/workspace/gmail/api/guides/sending
+- Gmail scopes: https://developers.google.com/workspace/gmail/api/auth/scopes
+- Keyless Vercel/Google Cloud access: https://vercel.com/docs/oidc/gcp
 
 The flow is a design inference from these sources and the business goal, not a claim of measured conversion improvement. Review actual request-to-link-open and help-request rates before adding further form fields or introducing paid tiers.
+
+## Google-native implementation
+
+Firestore now stores scans, leads, report access, shared counters, and send-attempt metadata. Gmail sends through a dedicated Workspace user using the narrow sending scope. A persistent outbox claim avoids blind duplicate retries, since Gmail does not provide a send-idempotency parameter. API acceptance and inbox delivery remain distinct. Sheets can consume the owner-only CSV export without becoming the transaction database. Vercel hosting is retained.

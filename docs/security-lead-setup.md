@@ -1,59 +1,140 @@
-# Activate security report emails and lead records
+# Activate Google-native security reports and lead records
 
-The branch is implemented, but production storage and email are **not connected** by a ChatGPT/GitHub connection. Complete these steps in your service dashboards. Do not paste secrets into chat or commit them.
+This branch uses **Cloud Firestore and the Google Workspace Gmail API**. Supabase and Resend are no longer required. The website and its Node API functions remain on Vercel. A Google connection in ChatGPT does not automatically authorize a separately deployed website.
 
-## 1. Create the private lead database
+No Google resources have been provisioned or emails sent by this change. Do not paste credentials into chat or commit them. The code fails closed if storage is not configured, so accepted scans never silently run without a record.
 
-Create a Supabase project. Run `db/security-leads.sql` in its SQL editor. This creates three server-only tables, two owner views, atomic rate-limit/claim functions, and retention cleanup. RLS is enabled, public/anon/authenticated access is revoked, and only service_role can use the application data and functions. Do not add public read policies.
+## Information to choose first
 
-Set these Vercel environment variables:
+- Google Cloud/Firebase **project ID** and the region for its security database.
+- A **licensed Workspace mailbox** for report sending, such as `reports@archwoodinnovations.com` or your existing `info@...` user. A Google Group alone is not an authenticating mailbox.
+- Optional owner notification email address.
 
-- `SUPABASE_URL`: the project's HTTPS URL.
-- `SUPABASE_SERVICE_ROLE_KEY`: the legacy JWT **service_role** key, not the anon/publishable key. It stays on the server and bypasses RLS, so protect it.
+Project IDs and mailbox addresses can be discussed normally. OAuth client secrets, refresh tokens, rate-limit secrets, and cron secrets belong in Vercel's environment settings or your local protected environment file, not in GitHub/chat. A Firebase web API key alone cannot authorize these server operations.
 
-Accepted valid submissions are stored **before** any target request. If storage is unavailable, scans stop rather than silently run without a record. Invalid URLs, credentials, unsupported addresses, and requests refused by limits are not accepted for scanning. Failed/cancelled accepted scans remain in the log. A forced function termination may leave a started row; the cleanup job later marks it interrupted.
+## 1. Firestore database and access
 
-Use Supabase's table editor or SQL editor for:
+Enable Firestore in Native mode, IAM Service Account Credentials API, and Security Token Service API in the chosen Google Cloud project. Create the named database **archwood-security** in the region you select. The default in `.env.example` and `firebase.json` uses this database name. If you choose another name, update both. Avoid changing rules on a database serving your existing app.
 
-- `security_scan_log`: every accepted website submission, timestamp, mode, outcome, error code, and summary. No visitor email is required for this log.
-- `security_lead_list`: report-request email, website, requested help, link-open timestamp, email-provider acceptance status, owner-notification status, and expansion status. Export this view as CSV if desired.
+Use a dedicated security project where possible. Create a backend service account with `roles/datastore.user` for that dedicated project, or equivalent appropriately scoped Firestore IAM. Do not grant Owner/Editor. Server SDK access is governed by IAM and bypasses Firebase client rules. Deploy the included deny-all client rules and composite index **to the security database only**. The `report` and `summary` fields are excluded from indexing.
 
-Link opened is evidence that the private link was accessed, not proof of website ownership or a sales-qualified lead. Email submission status is provider acceptance, not proof of inbox delivery. Unconfirmed addresses remain distinguishable.
+Using the Firebase CLI after selecting/confirming the actual project:
 
-## 2. Configure transactional email
+```
+firebase deploy --only firestore --project YOUR_PROJECT_ID
+```
 
-Create a Resend account, verify your sending domain through its DNS instructions, and create a sending API key. Set:
+Inspect `firebase.json` before deploying. It targets the named database, not the default app database. This command requires your own authorized CLI session. It does not run automatically in Vercel.
 
-- `RESEND_API_KEY`
-- `REPORT_FROM_EMAIL`, for example `Archwood Innovations <reports@archwoodinnovations.com>` on your verified domain.
-- Optional `LEAD_NOTIFICATION_EMAIL`, the inbox where you want new report-open notifications. Leave it empty to use only the database lead list.
+### Keyless Vercel authentication
 
-The visitor receives a private seven-day link. Opening it confirms the report request and unlocks details, a readable HTML download (also printable), and one expanded public review. There is no automatic marketing subscription. Requesting a callback is a separate, unchecked option.
+Follow Vercel's Google Cloud OIDC guide: https://vercel.com/docs/oidc/gcp
 
-The owner receives a **separate notification** after the private report link is opened, rather than a BCC of the visitor's access link. It contains the email, website, initial summary, and requested-help flag. The private token is not shared in the notification. Owner email is best effort: failures remain visible in the lead list and can be retried on a subsequent report open. It is not a guaranteed background email queue. Resend idempotency reduces duplicate sends within its 24-hour idempotency window; uncertain provider acknowledgments remain marked unknown.
+Create a Workload Identity Pool and OIDC provider. Use your team's configured Vercel issuer. Allow the exact default Vercel audience `https://vercel.com/YOUR_TEAM_SLUG`, map `google.subject` to `assertion.sub`, and bind only the exact intended team/project/environment subject to the backend service account with `roles/iam.workloadIdentityUser`. Do not authorize every principal in the pool. Use a separate project/database/mailbox for preview testing where practical.
 
-## 3. Configure domains and retention
+Set these in Vercel:
 
-In Vercel Production, set `PUBLIC_SITE_URL=https://archwoodinnovations.com`. In Preview, omit it to use Vercel's deployment URL, or set it to your trusted preview origin. Never derive emailed links from user-supplied hostnames. Vercel preview authentication also applies to report links on a preview deployment.
+- `GCP_PROJECT_ID`
+- `GCP_FIRESTORE_DATABASE_ID=archwood-security`
+- `GCP_AUTH_MODE=wif`
+- `GCP_PROJECT_NUMBER`
+- `GCP_SERVICE_ACCOUNT_EMAIL`
+- `GCP_WORKLOAD_IDENTITY_POOL_ID`
+- `GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID`
+- `RATE_LIMIT_SECRET`: at least 32 random characters, independent of all Google credentials.
 
-Set `CRON_SECRET` to a long random secret. Vercel's configured daily `/api/security-retention` job uses it for authorization. Confirm cron success in the Vercel dashboard after deployment. Details and quick-check receipt credentials are removed after 14 days; private links expire after 7 days; scan/lead-request records expire after 90 days. Provider backups/access logs are separate. If you disable cron, arrange equivalent database cleanup before retaining the public privacy notice unchanged.
+The code exchanges Vercel's short-lived OIDC identity for a Google service-account token. No Google service-account private key is stored by this integration. Restrict the federation trust and service-account role to this workload.
 
-Review `/security-privacy` against your actual operational practices and service-provider arrangements. Its text describes the implemented data flow and limitations; it is not a promise of legal immunity or a substitute for business-specific legal review.
+Locally, use `GCP_AUTH_MODE=adc` with `gcloud auth application-default login` or your approved ADC service-account impersonation setup. If the backend is later moved to Google Cloud, ADC can instead use an attached service account. No hosting move is needed for this branch.
 
-## 4. Review and test before merging
+## 2. Gmail sending authorization
 
-- `/security-preview`: noindex design preview of four illustrative result tones. It never scans or sends email, so you can review the layout before configuring services.
-- `/website-security`: actual service. Requires the Supabase configuration even for the free snapshot, so every accepted scan is recorded. Requires Resend only when requesting the email report.
-- Copy `.env.example` to `.env.local` for local work. `npm run dev` reads it. Real values are ignored by git. No npm dependencies need installing.
-- Run `npm test`.
-- With your own domain and mailbox, run a quick check; verify a completed database row and that the free network response contains no detailed report.
-- Request a report and verify a lead row, provider acceptance, delivery in your mailbox, the private link, HTML download, and the one-report expansion limit.
-- Confirm the optional owner notification and follow-up flag, expired-link errors, Supabase public access denial, and retention execution.
+Enable the Gmail API in your Google Cloud project. Create an OAuth app for your Workspace organization, preferably **Internal**. Authorize the dedicated sending user for only:
 
-The repository tests use injected provider/database responses and do not provision or execute the SQL against a real Supabase project, send real email, or guarantee delivery. Real service validation remains necessary after credentials are configured.
+```
+https://www.googleapis.com/auth/gmail.send
+```
 
-## Operational limits
+The app sends messages but does not request access to read the mailbox, modify messages, or delete email. Domain-wide delegation is **not needed or implemented** for this route. Internal organizational policies may require admin approval for the OAuth client. External/testing OAuth apps have different token/verification requirements, so choose the appropriate consent configuration deliberately.
 
-Shared database limits: 5 accepted scans per daily-rotating client hash per 10 minutes; 20 per normalized website URL per hour; 3 report-email requests per email per 30 minutes; 5 per client hash per hour. One successful expanded review per report link, with at most two attempts. An expansion claim is atomic; interrupted claims can be retried after two minutes. There are also 8 concurrent scans per function instance. These bounds limit repeat use but are not a payment system or complete bot defense. Use Vercel Firewall/rate limits for broader denial-of-service and traffic-cost control.
+For the included local helper, create a Web application OAuth client and register this exact loopback redirect URI:
 
-No existing report is silently upgraded into a marketing subscription. There are no paid plans, billing, authenticated accounts, or claims of comprehensive vulnerability detection.
+```
+http://127.0.0.1:53682/oauth2/callback
+```
+
+Set `GMAIL_OAUTH_CLIENT_ID` and `GMAIL_OAUTH_CLIENT_SECRET` in your local protected environment file, run `npm ci`, then:
+
+```
+npm run gmail:authorize
+```
+
+Open the printed Google authorization URL in your own browser, sign in **as the report-sending mailbox**, and approve the send-only scope. The helper uses state and PKCE. It saves the refresh token locally with restrictive permissions and does not print it. Copy the saved token securely to Vercel. The helper does not send any email. Do not upload the local environment file.
+
+Set in Vercel:
+
+- `GMAIL_OAUTH_CLIENT_ID`
+- `GMAIL_OAUTH_CLIENT_SECRET`
+- `GMAIL_OAUTH_REFRESH_TOKEN`
+- `GMAIL_SENDER_EMAIL`, the mailbox you authorized.
+- `REPORT_FROM_EMAIL`, for example `Archwood Innovations <reports@archwoodinnovations.com>`. Its address must match `GMAIL_SENDER_EMAIL`.
+- Optional `LEAD_NOTIFICATION_EMAIL` for a separate owner notification after a private report link is opened. Leave empty for database-only lead tracking.
+
+Workspace/Gmail account sending limits and API quotas apply. This is for modest transactional report traffic, not bulk marketing. Successful API submission is recorded as acceptance, not proof of inbox delivery. Later bounces/delivery tracking are not automatically reconciled by this send-only integration.
+
+## 3. Tracking records and emails
+
+Use the Firebase/Google Cloud Firestore console to inspect these private collections:
+
+| Collection | Records |
+| --- | --- |
+| `security_scans` | Every accepted normalized website submission, review outcome, summary, and temporary report |
+| `security_leads` | Deduplicated report-request email addresses |
+| `security_report_access` | Email request, related lead/scan, optional help request, report-link opened time, send status, Gmail ID, expansion status |
+| `security_mail` | Recipient, sender, subject, attempted time, stable RFC Message-ID, Gmail message/thread IDs, accepted/rejected/auth-failed/uncertain status |
+| `security_tokens` | Hashed private link lookup, with seven-day expiry |
+| `security_rates` | Shared bounded request counters |
+
+Actual report and notification messages are sent through the chosen mailbox. Inspect its **Sent** folder for sent messages. You can correlate the stable `message_id` in the mail log using Gmail search `rfc822msgid:VALUE` (without angle brackets). The application does not request Gmail read scopes just to display a copy of the inbox/Sent folder.
+
+For a lead CSV usable in Google Sheets, an owner with Google Cloud ADC/IAM can run:
+
+```
+npm run --silent export:security > exports/leads.csv
+```
+
+Create the `exports` directory locally first; it is ignored by git. The command exports the most recent 1,000 requests by default, and `SECURITY_EXPORT_LIMIT` can set a bounded limit up to 10,000. It does not expose report credentials or full evidence. The console's `security_mail` collection remains the authoritative send-attempt log.
+
+### Duplicate-send handling
+
+Gmail's send API does not provide Resend-style send idempotency keys. The code therefore claims a persistent mail-log entry transactionally before sending. Accepted attempts are reused, while uncertain/interrupted attempts are **not automatically resent**. If a connection fails after Google may have accepted a message, check the mailbox and mail log before taking manual action. A stable Message-ID helps reconciliation but is not itself a promise that Gmail deduplicates messages.
+
+The owner notification is separate from the visitor's access email and never includes their private report token. It is best effort, not a guaranteed background queue. Notification failures remain in the access record; accepted or ambiguous mail attempts are protected from blind replay. An opened report link is not proof of website ownership or a qualified sales lead.
+
+## 4. Domains, retention, and testing
+
+Set `PUBLIC_SITE_URL=https://archwoodinnovations.com` in Production. In Preview omit it to use `VERCEL_URL`, or supply your trusted preview origin. Preview authentication can also protect emailed preview links.
+
+Set a long random `CRON_SECRET` for the existing daily Vercel retention route and confirm successful runs in Vercel. Private links expire after seven days. Details/receipt credentials are removed after fourteen days. Scan/lead/request/mail metadata is retained for ninety days. Cleanup is bounded to 200 documents per collection per run; monitor for backlog at higher volume and arrange sufficient cleanup capacity. Optional Firestore TTL on `purge_at` can help but is asynchronous and does not replace token-expiry enforcement or removal of report fields. Gmail mailbox retention and Google/Vercel logs/backups are separate from application retention.
+
+Review `/security-privacy` against your actual practices. The notice describes this implementation; it is not a legal immunity promise.
+
+Before merging:
+
+1. Run `npm ci` and `npm test`.
+2. Configure the actual Google project, rules/index, IAM/federation, mailbox authorization, and Vercel secrets.
+3. Use your own website and mailbox to test the quick snapshot, Firestore records, emailed link, report download, one successful expanded review, owner notification, CSV export, and cleanup.
+4. Confirm unauthenticated Firebase clients cannot read/write the dedicated database. Confirm the Gmail OAuth grant has only the sending scope.
+5. Review `/security-preview` and `/website-security` on your target devices.
+
+Repository tests use transactional test doubles and injected Gmail responses. They do not provision Google resources, validate live IAM/rules/indexes, send real email, or establish inbox delivery. Those checks require your configured project and mailbox.
+
+## References
+
+- https://vercel.com/docs/oidc/gcp
+- https://firebase.google.com/docs/firestore/manage-data/transactions
+- https://firebase.google.com/docs/firestore/security/rules-conditions
+- https://developers.google.com/workspace/gmail/api/guides/sending
+- https://developers.google.com/workspace/gmail/api/auth/scopes
+- https://developers.google.com/identity/protocols/oauth2/web-server
+- https://developers.google.com/workspace/gmail/api/reference/quota

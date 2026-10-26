@@ -17,7 +17,7 @@ module.exports=async function handler(req,res){
    // Unknown is persisted before submission so a successful email remains usable if acknowledgment saving fails.
    await store.updateAccess(access.id,{email_status:'unknown'});
    let id;
-   try{id=await sendEmail(linkEmail(email,raw,scan),'report-'+access.id);}
+   try{id=await sendEmail(linkEmail(email,raw,scan),'report-'+access.id,{db:store.db});}
    catch(error){if(error.emailRejected)await store.updateAccess(access.id,{email_status:'failed'}).catch(()=>{});throw error;}
    await store.updateAccess(access.id,{email_status:'accepted',provider_id:id}).catch(()=>{});
    res.setHeader('Content-Type','application/json');res.end(JSON.stringify({accepted:true,message:'Your report link was accepted for email delivery. Check your inbox and spam folder. Open the link to unlock your report and expanded review.'}));return;
