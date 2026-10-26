@@ -34,5 +34,10 @@
       "destination": "https://archwoodstudios.com/",
       "permanent": false
     }
-  ]
+  ],
+  "functions": {
+    "api/security-scan.js": {
+      "maxDuration": 60
+    }
+  }
 }
