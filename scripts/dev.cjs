@@ -2,14 +2,14 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const handler = require('../api/security-scan.js');
+const handlers = { '/api/security-scan':require('../api/security-scan.js'), '/api/security-report':require('../api/security-report.js'), '/api/security-retention':require('../api/security-retention.js') };
 const config = require('../vercel.json');
 const root = path.resolve(__dirname,'../dist');
-const types = { '.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.png':'image/png', '.webp':'image/webp', '.woff':'font/woff' };
+const types = { '.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.png':'image/png', '.webp':'image/webp', '.woff':'font/woff', '.xml':'application/xml', '.txt':'text/plain', '.svg':'image/svg+xml' };
 http.createServer(async (req,res) => {
   for (const header of config.headers[0].headers) res.setHeader(header.key,header.value);
   const pathname = new URL(req.url,'http://localhost').pathname;
-  if (pathname === '/api/security-scan') return handler(req,res);
+  if (handlers[pathname]) return handlers[pathname](req,res);
   const redirect = config.redirects.find(item => item.source === pathname);
   if (redirect) { res.writeHead(307,{ Location:redirect.destination });res.end();return; }
   let file = path.resolve(root,'.'+decodeURIComponent(pathname));

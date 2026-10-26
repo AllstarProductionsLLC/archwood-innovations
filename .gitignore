@@ -1,5 +1,4 @@
 .DS_Store
-.env
 .env.*
 !.env.example
 node_modules/
@@ -7,3 +6,7 @@ node_modules/
 *.zip
 *.tar.gz
 tmp/
+.env*
+!.env.example
+
+/exports/

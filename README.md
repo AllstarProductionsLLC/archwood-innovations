@@ -1,6 +1,6 @@
 # Archwood Innovations
 
-A responsive company website inspired by the supplied **Bridging Analog to Digital** pitch deck. Built with semantic HTML, CSS, and JavaScript, with no third-party runtime dependencies or build step. The website security tool uses a Node.js Vercel Function.
+A responsive company website inspired by the supplied **Bridging Analog to Digital** pitch deck. Built with semantic HTML, CSS, and JavaScript, with a static frontend and no build step. The server uses pinned Google Cloud authentication and Firestore libraries. The website security tool uses a Node.js Vercel Function.
 
 ## What works
 
@@ -14,14 +14,14 @@ A responsive company website inspired by the supplied **Bridging Analog to Digit
 - Email and telephone links using the deck's contact details. The conversation buttons open the visitor's email application.
 - Local fonts and artwork, descriptive metadata, visible focus states, and core content that works without JavaScript.
 
-There is no lead-capture backend, account system, analytics, or external script. No button pretends to submit data. Forms and other integrations can be added when their behavior and provider are chosen.
+The website security check includes a server-side lead and report workflow using Google Cloud Firestore and Google Workspace Gmail. Those services require environment configuration before use. There is no account system, billing, advertising analytics, or external client script. See `docs/security-lead-setup.md` before merging the lead-generation branch.
 
 ## Deploy on Vercel
 
 1. Add these files to a GitHub repository, preserving the folder structure.
 2. In Vercel, create a project and import that repository.
 3. Keep the repository root as the Root Directory. Use **Other** as the Framework Preset.
-4. Keep the Build Command and Install Command empty. The included `vercel.json` sets the Output Directory to `dist`.
+4. Keep the Build Command empty and use `npm ci` as the Install Command. The included `vercel.json` sets the Output Directory to `dist`.
 5. Deploy. Connect your domain in Vercel when you are ready.
 
 Once the GitHub repository is connected, subsequent pushes to its production branch trigger Vercel deployments according to your Vercel Git settings.
@@ -30,7 +30,7 @@ Official references: [Importing a Git repository](https://vercel.com/docs/deploy
 
 ## Preview locally
 
-Run `npm run dev` from the repository root, then open `http://localhost:3000`. No package installation or API key is needed. This serves the static pages and the assessment API together. A static file server alone cannot run the assessment backend.
+Run `npm ci`, then `npm run dev` from the repository root, then open `http://localhost:3000`. Google Cloud and Workspace configuration is documented in `docs/security-lead-setup.md`. This serves the static pages and the assessment API together. A static file server alone cannot run the assessment backend.
 
 
 ## Edit the site
@@ -90,31 +90,23 @@ The impact chart progresses from Manual (80/20) to Connected (30/70) as its bars
 
 **Executive Tools** opens the standalone website at `https://archwoodstudios.com/` in the current tab. The old `/archwood-studios` route redirects there through Vercel. The embedded app page and its iframe-specific CSP allowance have been removed.
 
-## Website security review
+## Website security review and email reports
 
-The navigation uses title case consistently: Our Approach, Expertise, The Impact, Executive Tools, and Let’s Talk. The fifth expertise panel opens `/website-security` through **Test my website**. All service panels remain closed on initial load.
+The fifth expertise panel links to `/website-security`. The public page preserves the animated shield and live server-stage progress. A free homepage check shows a concise, qualified summary and next-step CTA. An optional emailed private link unlocks the detailed report, an HTML download, and one expanded review of up to three eligible same-origin pages. Detailed findings, PHP advisories, and coverage are collapsed by default.
 
-The tool runs a real passive assessment through `api/security-scan.js`, with Quick (homepage) and Expanded (homepage plus up to two eligible, same-origin informational links). It makes ordinary HTTPS GET requests, does not log in, submit forms, probe hidden paths, enumerate ports, or test exploits. Its animated progress follows actual streamed server stages, rather than a timer. Reports include evidence, qualitative confidence, scope, an export, and an email contact link. Raw HTML and cookie values are never returned in the report. The app does not persist reports or submissions, although Vercel/platform access logs may still exist.
+The large letter grade is replaced with descriptive states and counts. Green is encouraging; blue/amber recommend review; red is reserved for a possible critical PHP version match, with explicit uncertainty. Missing headers alone are not presented as proof of danger. The curated PHP advisory rules remain dated October 25, 2026 and are not a live CVE feed.
 
-### What the grade means
+Every accepted valid scan is recorded in Firestore before outbound requests, including scans that later fail or are interrupted. Email requests and optional requests for help are separate records; owner notifications are sent when a private report link is opened. The system never silently runs an unrecorded scan if storage is unavailable. It does not subscribe visitors to marketing.
 
-Six basic response checks total 100 points: certificate-validated HTTPS (20), HSTS with positive max-age (20), a basic enforced CSP source restriction (20), framing protection (15), nosniff (15), and referrer policy (10). A=90+, B=80+, C=65+, D=50+, F=below 50. Expanded mode uses the weakest observed result per control. The score describes these public configuration controls only. It is not an overall security score. Cookie attributes, HTTP resource references, technology banners, and PHP advisory indications appear separately and do not change the configuration grade. An unassessable homepage produces no grade. The report identifies skipped pages and truncated markup.
+**Activation is required:** create the dedicated Firestore database and deploy its rules/index, configure keyless Google Cloud access and send-only Gmail OAuth in Vercel, and set the retention cron secret. Preview/Production deployments do not inherit credentials from the GitHub connector. No AI API key is needed.
 
-### PHP advisory rules
+- `docs/security-lead-setup.md`: exact activation, private lead-list views, retention, provider behavior, limits, and test checklist.
+- `docs/security-funnel-design.md`: research, free/email tier decision, conditional colors/CTAs, and SEO/share strategy.
+- `/security-preview`: clearly labeled, noindex sample states for visual review without credentials. No scans, collection, or email occur on that page.
+- `/security-privacy`: public information-use and assessment-scope notice.
 
-The selected, curated PHP rules were checked against the vendor on October 25, 2026. They cover CVE-2026-109618 and CVE-2026-109619 using the published fixes 8.2.35, 8.3.36, 8.4.27, and 8.5.12, plus a configuration-only notice for CVE-2026-115560. These are advisory-specific thresholds, not an automatically updated latest-version feed. Hidden, conflicting, prerelease, and distributor-suffixed banners remain unknown. Affected-looking banners are only potential exposure, since the tool cannot verify vendor backports or runtime configuration. WordPress markup never establishes a PHP version. Keep `lib/security-review.cjs` and the page’s review date updated when advisories change.
+The existing public-only DNS pinning, redirect validation, verified TLS, body/time bounds, and passive request restrictions remain in place. Expanded requests are now gated on an opened, unexpired email-report link, not just hidden in the UI. Firestore transactions provide shared request and expansion limits. Private tokens are generated securely and stored only as hashes. Firestore also records Gmail recipients, message/thread IDs, and acceptance/uncertainty states. A report link is a bearer credential and should be kept private.
 
-Primary sources:
-- https://www.php.net/archive/2026.php
-- https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w
-- https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp
+Run `npm test` for existing interaction, scan transport, PHP boundaries, summary tones, gate authorization, persistence failures, email acceptance, and report escaping tests. Provider/database tests use injected responses; real Google IAM/rules/indexes and email delivery require validation after credentials are supplied. Vercel preview authentication can prevent browser verification in this environment. Review the branch on target devices before merging.
 
-### Deployment and operational boundaries
-
-Keep Vercel's Root Directory at the repository root. The static output remains `dist`; the root `api` directory is discovered as a Node.js Function. `package.json` selects Node 22 and the function is allowed 60 seconds. There are no AI, Gemini, or scanner API credentials to configure.
-
-Requests are HTTPS-only on the standard port. Inputs are normalized to the homepage, and credentials/IP literals/local hostnames are rejected. Every DNS address must be public, the validated addresses are pinned into the actual HTTPS request, and redirects repeat validation. Expanded requests cannot leave the homepage’s final origin. Each response is capped at 256 KiB, redirects are limited, TLS verification remains enabled, and the review has a 35-second deadline. Private, loopback, link-local, reserved, multicast, and IPv4-mapped IPv6 destinations are blocked.
-
-The API requires JSON, same-site browser requests, and an authorization declaration. It has per-instance limits of five requests per client hash per ten minutes, eight concurrent requests, and bounded rate-limit state. Client hashes are held in memory only and expire. **These limits are not distributed:** cold starts and additional Vercel instances have independent counters. For a high-traffic launch, enforce shared rate limits with the Vercel Firewall or a durable rate-limit service. Provider log retention and traffic costs are controlled in Vercel. No user input is passed to a shell or executed, and report rendering uses text nodes.
-
-Run `npm test` for controller, SSRF, redirect/DNS pinning, report grading, PHP boundaries, and API tests. Browser verification may be limited by Vercel preview authentication. Review the preview on target devices before merging.
+Cybersecurity & cyber defense is first in the homepage expertise list. The remaining service panels retain their order, wording, and links. The Google integration uses Vercel OIDC federation for Firestore and a dedicated Workspace user’s Gmail send-only OAuth grant. Domain-wide mailbox delegation and service-account private keys are not used.

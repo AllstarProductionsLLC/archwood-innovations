@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "buildCommand": null,
-  "installCommand": null,
+  "installCommand": "npm ci",
   "outputDirectory": "dist",
   "cleanUrls": true,
   "headers": [
@@ -38,6 +38,18 @@
   "functions": {
     "api/security-scan.js": {
       "maxDuration": 60
+    },
+    "api/security-report.js": {
+      "maxDuration": 60
+    },
+    "api/security-retention.js": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/security-retention",
+      "schedule": "0 6 * * *"
+    }
+  ]
 }

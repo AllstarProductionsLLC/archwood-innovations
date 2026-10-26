@@ -1,0 +1,12 @@
+'use strict';
+// Small transactional Firestore test double. No Google services or credentials are used.
+const copy=value=>structuredClone(value);
+class FakeFirestore{
+ constructor(){this.rows=new Map();this.tail=Promise.resolve();}
+ snapshot(ref){const value=this.rows.get(ref.path);return{ref,id:ref.id,exists:value!==undefined,data:()=>value===undefined?undefined:copy(value)};}
+ collection(name){const self=this;const query=(filters=[],max=Infinity,sort)=>({doc:id=>{const ref={path:name+'/'+id,id,get:async()=>self.snapshot(ref),update:async data=>self.apply('update',ref,data),set:async data=>self.apply('set',ref,data)};return ref;},where:(field,operator,value)=>query([...filters,[field,operator,value]],max,sort),limit:value=>query(filters,value,sort),orderBy:(field,direction)=>query(filters,max,[field,direction]),get:async()=>{let docs=[...self.rows.keys()].filter(key=>key.startsWith(name+'/')).map(key=>self.snapshot({path:key,id:key.slice(name.length+1)})).filter(doc=>filters.every(([field,op,value])=>{const current=doc.data()[field];if(current===undefined)return false;return op==='=='?current===value:op==='<='?current<=value:op==='<'?current<value:false;}));if(sort)docs.sort((a,b)=>(a.data()[sort[0]]>b.data()[sort[0]]?1:-1)*(sort[1]==='desc'?-1:1));docs=docs.slice(0,max);return{docs,empty:!docs.length};}});return query();}
+ apply(kind,ref,data){if(kind==='delete'){this.rows.delete(ref.path);return;}if(kind==='create'&&this.rows.has(ref.path))throw Error('Already exists');if(kind==='update'&&!this.rows.has(ref.path))throw Error('Not found');const row=kind==='update'?copy(this.rows.get(ref.path)):{};for(const[key,value]of Object.entries(data)){if(value?.constructor?.name==='DeleteTransform')delete row[key];else row[key]=copy(value);}this.rows.set(ref.path,row);}
+ runTransaction(fn){const run=this.tail.then(async()=>{const writes=[];let written=false;const tx={get:async ref=>{if(written)throw Error('Read after write');return this.snapshot(ref);},set:(ref,data)=>{written=true;writes.push(['set',ref,data]);},create:(ref,data)=>{written=true;writes.push(['create',ref,data]);},update:(ref,data)=>{written=true;writes.push(['update',ref,data]);}};const result=await fn(tx);for(const args of writes)this.apply(...args);return result;});this.tail=run.catch(()=>{});return run;}
+ batch(){const writes=[];return{delete:ref=>writes.push(['delete',ref]),update:(ref,data)=>writes.push(['update',ref,data]),commit:async()=>{for(const args of writes)this.apply(...args);}};}
+}
+module.exports={FakeFirestore};

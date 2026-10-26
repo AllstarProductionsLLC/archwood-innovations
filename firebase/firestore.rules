@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Dedicated security database only. Server IAM is configured separately.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

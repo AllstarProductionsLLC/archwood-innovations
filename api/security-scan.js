@@ -1,57 +1,53 @@
 'use strict';
-const { runReview } = require('../lib/security-review.cjs');
-const { ScanError } = require('../lib/safe-request.cjs');
-const { createHash } = require('node:crypto');
-const limits = new Map();
-let active = 0;
-function reserve(req) {
-  const now = Date.now();
-  for (const [key, entry] of limits) if (entry.reset < now) limits.delete(key);
-  if (limits.size > 5000) return false;
-  // Vercel supplies x-forwarded-for. Retain only a short-lived hash in memory.
-  const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
-  const key = createHash('sha256').update(ip).digest('hex');
-  const entry = limits.get(key) || { count: 0, reset: now + 600000 };
-  if (entry.count >= 5 || active >= 8) return false;
-  entry.count += 1; limits.set(key, entry); return true;
-}
-module.exports = async function handler(req, res) {
-  res.setHeader('Cache-Control', 'no-store, max-age=0');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  function fail(status, message) { res.statusCode = status; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({ error: message })); }
-  if (req.method !== 'POST') { res.setHeader('Allow','POST'); return fail(405,'Use the website assessment form to start a review.'); }
-  if (!/^application\/json(?:;|$)/i.test(req.headers['content-type'] || '')) return fail(415,'A JSON request is required.');
-  if (req.headers['sec-fetch-site'] === 'cross-site') return fail(403,'Start the review from this website.');
-  if (req.headers.origin) {
-    try { if (new URL(req.headers.origin).host !== req.headers.host) return fail(403,'Start the review from this website.'); }
-    catch { return fail(403,'Invalid request origin.'); }
+const {runReview}=require('../lib/security-review.cjs');
+const {normalizeTarget,ScanError}=require('../lib/safe-request.cjs');
+const {summarize}=require('../lib/security-summary.cjs');
+const {createStore,clientKey,digest,token,ServiceError}=require('../lib/lead-store.cjs');
+const {readRequest,failure}=require('../lib/api-request.cjs');
+let active=0;
+module.exports=async function handler(req,res){
+ let body,store,target,grant,session,raw,expansionClaimed=false;
+ try{
+  body=await readRequest(req,res);
+  if(body.authorized!==true||!['quick','expanded'].includes(body.mode))throw new ServiceError('Confirm you have permission to review this website.',400);
+  if(active>=8)throw new ServiceError('Review capacity reached. Please try again shortly.',429);
+  if(body.mode==='quick')target=normalizeTarget(body.url);
+  store=createStore();
+  if(body.mode==='expanded'){
+   grant=await store.access(body.reportToken);
+   target=new URL((await store.getScan(grant.access.scan_id)).website_url);
+   const claimed=await store.rpc('security_claim_expansion',{p_token:digest(body.reportToken)});
+   if(claimed.expansion_status==='completed'){
+    const prior=await store.getScan(claimed.expanded_scan_id);
+    if(!prior.report)throw new ServiceError('This report has expired. Run a new quick check.',410);
+    res.setHeader('Content-Type','application/x-ndjson');res.end(JSON.stringify({type:'result',summary:prior.summary,report:prior.report})+'\n');return;
+   }
+   expansionClaimed=true;
   }
-  if (Number(req.headers['content-length'] || 0) > 4096) return fail(413,'The request is too large.');
-  let body;
-  try {
-    if (req.body !== undefined) body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    else {
-      let raw = ''; for await (const chunk of req) { raw += chunk; if (Buffer.byteLength(raw) > 4096) return fail(413,'The request is too large.'); }
-      body = JSON.parse(raw);
-    }
-  } catch { return fail(400,'Enter a valid website address.'); }
-  if (!body || JSON.stringify(body).length > 4096 || typeof body.url !== 'string' || !['quick','expanded'].includes(body.mode) || body.authorized !== true) return fail(400,'Enter a website, select a review, and confirm you have permission.');
-  if (!reserve(req)) { res.setHeader('Retry-After','600'); return fail(429,'Review capacity reached. Please wait ten minutes before trying again.'); }
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 35000);
-  const disconnected = () => { if (!res.writableEnded) controller.abort(); };
-  res.on('close', disconnected);
-  active += 1;
-  res.setHeader('Content-Type','application/x-ndjson; charset=utf-8');
-  res.setHeader('X-Accel-Buffering','no');
-  const emit = event => { if (!res.destroyed && !res.writableEnded) res.write(JSON.stringify(event) + '\n'); };
-  try {
-    const report = await runReview(body.url, body.mode, { signal: controller.signal, emit });
-    if (controller.signal.aborted) throw new ScanError('The review timed out. Try a quick review.', 'TIMEOUT');
-    emit({ type: 'result', report });
-  } catch (error) {
-    emit({ type: 'error', code: error instanceof ScanError ? error.code : 'FETCH_FAILED', message: error instanceof ScanError ? error.message : controller.signal.aborted ? 'The review timed out. Try a quick review.' : 'We could not read this website securely. Check its HTTPS availability or try again later. No grade was generated.' });
-  } finally {
-    clearTimeout(timeout); active -= 1; res.off('close', disconnected); res.end();
-  }
+  raw=token();
+  session=await store.rpc('security_start_scan',{p_url:target.href,p_client:clientKey(req),p_bearer:digest(raw),p_mode:body.mode,p_parent:grant?.access.scan_id||null});
+ }catch(error){
+  if(expansionClaimed)await store?.updateAccess(grant.access.id,{expansion_status:'failed'}).catch(()=>{});
+  if(error instanceof ScanError)error=new ServiceError(error.message,400);
+  return failure(res,error);
+ }
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),35000);
+ const disconnect=()=>{if(!res.writableEnded)controller.abort();};res.on('close',disconnect);
+ active++;
+ res.setHeader('Content-Type','application/x-ndjson; charset=utf-8');res.setHeader('X-Accel-Buffering','no');
+ const emit=event=>{if(!res.destroyed&&!res.writableEnded)res.write(JSON.stringify(event)+'\n');};
+ try{
+  const report=await runReview(target.href,body.mode,{signal:controller.signal,emit});
+  if(controller.signal.aborted)throw new ScanError('The review was interrupted. Try again.','TIMEOUT');
+  const summary=summarize(report);
+  await store.updateScan(session.id,{status:'completed',summary,report});
+  if(grant){await store.updateAccess(grant.access.id,{expansion_status:'completed',expanded_scan_id:session.id});emit({type:'result',summary,report});}
+  else emit({type:'result',summary,scanId:session.id,scanToken:raw});
+ }catch(error){
+  const code=error instanceof ScanError?error.code:controller.signal.aborted?'INTERRUPTED':'REVIEW_FAILED';
+  await store.updateScan(session.id,{status:controller.signal.aborted?'cancelled':'failed',error_code:code}).catch(()=>{});
+  if(grant)await store.updateAccess(grant.access.id,{expansion_status:'failed'}).catch(()=>{});
+  emit({type:'error',code,message:error instanceof ScanError||error instanceof ServiceError?error.message:controller.signal.aborted?'The review was interrupted. Please try again.':'We could not read this website securely. No result was generated.'});
+ }finally{clearTimeout(timeout);active--;res.off('close',disconnect);res.end();}
 };

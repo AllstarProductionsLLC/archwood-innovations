@@ -3,6 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "description": "Archwood Innovations website and passive public security assessment",
-  "engines": { "node": "22.x" },
-  "scripts": { "test": "node --test tests/*.cjs", "dev": "node scripts/dev.cjs" }
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "test": "node --test tests/*.cjs",
+    "dev": "node --env-file-if-exists=.env.local scripts/dev.cjs",
+    "gmail:authorize": "node --env-file-if-exists=.env.local scripts/gmail-authorize.cjs",
+    "export:security": "node --env-file-if-exists=.env.local scripts/security-export.cjs"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "9.4.0",
+    "@vercel/oidc": "3.5.0",
+    "google-auth-library": "11.3.1"
+  }
 }
