@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {summarize}=require('../lib/security-summary.cjs');
 const {createStore,ServiceError,digest,clientKey}=require('../lib/lead-store.cjs');
-const {sendEmail,linkEmail,notifyOwner,reportDocument}=require('../lib/report-email.cjs');
+const {sendEmail,linkEmail,notifyOwner,ownerEmail,reportDocument}=require('../lib/report-email.cjs');
 const {FakeFirestore}=require('./helpers/firestore.cjs');
 const {mime}=require('../lib/google-mail.cjs');
 const env={GCP_PROJECT_ID:'security-project',GCP_AUTH_MODE:'adc',RATE_LIMIT_SECRET:'r'.repeat(32),GMAIL_OAUTH_CLIENT_ID:'client',GMAIL_OAUTH_CLIENT_SECRET:'secret',GMAIL_OAUTH_REFRESH_TOKEN:'refresh',GMAIL_SENDER_EMAIL:'reports@archwoodinnovations.com',REPORT_FROM_EMAIL:'Archwood <reports@archwoodinnovations.com>',PUBLIC_SITE_URL:'https://archwoodinnovations.com',LEAD_NOTIFICATION_EMAIL:'owner@company.com'};
@@ -60,4 +60,20 @@ test('HTML report escapes target-controlled content and remains an honest, non-s
 test('missing persistence configuration cannot silently fall back to unrecorded scans',()=>{
  assert.throws(()=>createStore({env:{}}),error=>error.status===503);
  assert.equal(digest('token').length,64);
+});
+
+test('owner notifications distinguish requested help and include escaped report evidence without access tokens',()=>{
+ const report=fixture({gaps:2});report.checks[0].evidence='<img src=x onerror=alert(1)>';const scan={website_url:'https://company.com/',report,summary:summarize(report)};
+ const access={id:'request-id',wants_help:true,token_hash:'private-hash',reportToken:'private-token'};
+ const message=ownerEmail('lead@company.com',access,scan,env);
+ assert.equal(message.subject,'[HELP REQUESTED] Website security: company.com');
+ assert.equal(message.replyTo,'lead@company.com');assert.match(message.text,/asked Archwood to contact/);assert.match(message.text,/Protection 0/);assert.match(message.text,/CVE-2026-109618/);assert.match(message.text,/Confidence: High: observation/);assert.match(message.text,/does not rule out/);
+ assert.match(message.html,/mailto:lead@company.com/);assert.match(message.html,/&lt;img/);assert.equal(message.html.includes('<img'),false);
+ const raw=Buffer.from(mime(message,'owner-test',new Date()).raw,'base64url').toString();assert.match(raw,/Reply-To: lead@company.com/);assert.throws(()=>mime({...message,replyTo:'lead@company.com\r\nBcc: attacker@bad.com'},'bad',new Date()),/invalid/);
+ assert.equal(JSON.stringify(message).includes('private-token'),false);assert.equal(JSON.stringify(message).includes('private-hash'),false);
+ const ordinary=ownerEmail('lead@company.com',{...access,wants_help:false},scan,env);assert.equal(ordinary.subject,'[REPORT OPENED] Website security: company.com');assert.match(ordinary.text,/did not request contact/);
+});
+test('owner notifications remain useful when detailed evidence has expired',()=>{
+ const report=fixture(),message=ownerEmail('lead@company.com',{id:'request-id',wants_help:true},{website_url:report.target,summary:summarize(report)},env);
+ assert.match(message.text,/Detailed evidence has expired or is unavailable/);assert.match(message.text,/basic protections observed/);
 });

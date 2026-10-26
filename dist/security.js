@@ -21,7 +21,7 @@
   $('#snapshot-highlights').hidden=!summary.highlights.length;
   $('#priority-note').hidden=!summary.priorityAdvisories.length;
   $('#priority-note').textContent=summary.priorityAdvisories.length?`Potential version match: ${summary.priorityAdvisories.join(', ')}. Actual patch status and exposure require verification.`:'';
-  const contact=$('#snapshot-contact');contact.replaceChildren(document.createTextNode(summary.cta+' '),node('span','↗'));contact.lastChild.setAttribute('aria-hidden','true');
+  const contact=$('#snapshot-contact');contact.replaceChildren(document.createTextNode('Email us about these findings '),node('span','↗'));contact.lastChild.setAttribute('aria-hidden','true');
   contact.href=`mailto:info@archwoodinnovations.com?subject=${encodeURIComponent('Website security review: '+host)}&body=${encodeURIComponent('Hello Archwood,\n\nI would like help reviewing the initial public security findings for '+summary.finalUrl+'\n\nSummary: '+summary.label+'\n')}`;
   $('#snapshot-caveat').textContent=summary.caveat;
   if(move)moveToResults();else results.hidden=false;
