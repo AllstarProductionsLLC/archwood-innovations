@@ -1,7 +1,7 @@
 {
   "firestore": [
     {
-      "database": "archwood-security",
+      "database": "(default)",
       "rules": "firebase/firestore.rules",
       "indexes": "firebase/firestore.indexes.json"
     }

@@ -14,7 +14,7 @@ Project IDs and mailbox addresses can be discussed normally. OAuth client secret
 
 ## 1. Firestore database and access
 
-Enable Firestore in Native mode, IAM Service Account Credentials API, and Security Token Service API in the chosen Google Cloud project. Create the named database **archwood-security** in the region you select. The default in `.env.example` and `firebase.json` uses this database name. If you choose another name, update both. Avoid changing rules on a database serving your existing app.
+Enable Firestore in Native mode, IAM Service Account Credentials API, and Security Token Service API in the chosen Google Cloud project. The created project is **archwood-security**, with the **(default)** database, Standard edition, Native mode, in **nam5**. The branch now matches that database ID in `.env.example`, `firebase.json`, and the server fallback. Keep this project dedicated to the security tool. If using a different database or project for another environment, update its configuration deliberately.
 
 Use a dedicated security project where possible. Create a backend service account with `roles/datastore.user` for that dedicated project, or equivalent appropriately scoped Firestore IAM. Do not grant Owner/Editor. Server SDK access is governed by IAM and bypasses Firebase client rules. Deploy the included deny-all client rules and composite index **to the security database only**. The `report` and `summary` fields are excluded from indexing.
 
@@ -24,7 +24,7 @@ Using the Firebase CLI after selecting/confirming the actual project:
 firebase deploy --only firestore --project YOUR_PROJECT_ID
 ```
 
-Inspect `firebase.json` before deploying. It targets the named database, not the default app database. This command requires your own authorized CLI session. It does not run automatically in Vercel.
+Inspect `firebase.json` before deploying. It targets the **(default)** database in the project you specify, so use **archwood-security** here and do not point this deny-all rule set at a different app’s project. This command requires your own authorized CLI session. It does not run automatically in Vercel.
 
 ### Keyless Vercel authentication
 
@@ -35,7 +35,7 @@ Create a Workload Identity Pool and OIDC provider. Use your team's configured Ve
 Set these in Vercel:
 
 - `GCP_PROJECT_ID`
-- `GCP_FIRESTORE_DATABASE_ID=archwood-security`
+- `GCP_FIRESTORE_DATABASE_ID=(default)`
 - `GCP_AUTH_MODE=wif`
 - `GCP_PROJECT_NUMBER`
 - `GCP_SERVICE_ACCOUNT_EMAIL`
