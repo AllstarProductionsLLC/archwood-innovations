@@ -99,7 +99,8 @@
   history.replaceState(null,'',location.pathname+location.search);
   const robots=document.createElement('meta');robots.name='robots';robots.content='noindex,nofollow';document.head.append(robots);
   error.hidden=true;consoleState.textContent='Opening your private report';
-  try{const data=await reportRequest({action:'open',reportToken:raw});reportToken=raw;renderSnapshot(data.summary);renderFull(data.report,data.expanded);consoleState.textContent='Your report is unlocked';}
+  try{const data=await reportRequest({action:'open',reportToken:raw});reportToken=raw;renderSnapshot(data.summary,false);renderFull(data.report,data.expanded);consoleState.textContent='Your report is unlocked';
+   requestAnimationFrame(()=>{results.focus({preventScroll:true});$('.results-heading').scrollIntoView({behavior:'instant',block:'start'});});}
   catch(failure){error.textContent=failure.message;error.hidden=false;consoleState.textContent='Report unavailable';}
  }
  if(designPreview){

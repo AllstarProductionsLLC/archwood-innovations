@@ -77,3 +77,17 @@ test('owner notifications remain useful when detailed evidence has expired',()=>
  const report=fixture(),message=ownerEmail('lead@company.com',{id:'request-id',wants_help:true},{website_url:report.target,summary:summarize(report)},env);
  assert.match(message.text,/Detailed evidence has expired or is unavailable/);assert.match(message.text,/basic protections observed/);
 });
+
+test('email report opening renders the full report before focusing and scrolling to the snapshot heading',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../dist/security.js'),'utf8');
+ const start=source.indexOf(' async function openLink(){'),end=source.indexOf('\n if(designPreview)',start);
+ for(const fails of [false,true]){
+  const events=[],frames=[];let cleaned;
+  const context={URLSearchParams,location:{hash:'#report=private-token',pathname:'/website-security',search:''},history:{replaceState:(_a,_b,url)=>{cleaned=url;}},document:{createElement:()=>({}),head:{append:()=>{}}},error:{},consoleState:{},reportToken:null,
+   reportRequest:async payload=>{assert.equal(payload.reportToken,'private-token');if(fails)throw Error('Expired link');return{summary:{},report:{},expanded:false};},
+   renderSnapshot:(_summary,move)=>{assert.equal(move,false);events.push('snapshot');},renderFull:()=>events.push('full'),requestAnimationFrame:fn=>frames.push(fn),results:{focus:options=>{assert.equal(options.preventScroll,true);events.push('focus');}},$:selector=>{assert.equal(selector,'.results-heading');return{scrollIntoView:options=>{assert.equal(options.block,'start');assert.equal(options.behavior,'instant');events.push('scroll');}};}};
+  vm.createContext(context);vm.runInContext(source.slice(start,end),context);await context.openLink();assert.equal(cleaned,'/website-security');
+  if(fails){assert.equal(frames.length,0);assert.equal(context.error.hidden,false);}
+  else{assert.deepEqual(events,['snapshot','full']);frames.forEach(fn=>fn());assert.deepEqual(events,['snapshot','full','focus','scroll']);}
+ }
+});
