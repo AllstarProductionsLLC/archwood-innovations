@@ -21,8 +21,6 @@
   $('#snapshot-highlights').hidden=!summary.highlights.length;
   $('#priority-note').hidden=!summary.priorityAdvisories.length;
   $('#priority-note').textContent=summary.priorityAdvisories.length?`Potential version match: ${summary.priorityAdvisories.join(', ')}. Actual patch status and exposure require verification.`:'';
-  const contact=$('#snapshot-contact');contact.replaceChildren(document.createTextNode('Email us about these findings '),node('span','↗'));contact.lastChild.setAttribute('aria-hidden','true');
-  contact.href=`mailto:info@archwoodinnovations.com?subject=${encodeURIComponent('Website security review: '+host)}&body=${encodeURIComponent('Hello Archwood,\n\nI would like help reviewing the initial public security findings for '+summary.finalUrl+'\n\nSummary: '+summary.label+'\n')}`;
   $('#snapshot-caveat').textContent=summary.caveat;
   if(move)moveToResults();else results.hidden=false;
  }
@@ -99,7 +97,8 @@
   history.replaceState(null,'',location.pathname+location.search);
   const robots=document.createElement('meta');robots.name='robots';robots.content='noindex,nofollow';document.head.append(robots);
   error.hidden=true;consoleState.textContent='Opening your private report';
-  try{const data=await reportRequest({action:'open',reportToken:raw});reportToken=raw;renderSnapshot(data.summary);renderFull(data.report,data.expanded);consoleState.textContent='Your report is unlocked';}
+  try{const data=await reportRequest({action:'open',reportToken:raw});reportToken=raw;renderSnapshot(data.summary,false);renderFull(data.report,data.expanded);consoleState.textContent='Your report is unlocked';
+   requestAnimationFrame(()=>{$('#full-report').focus({preventScroll:true});$('.full-report-heading').scrollIntoView({behavior:'instant',block:'start'});});}
   catch(failure){error.textContent=failure.message;error.hidden=false;consoleState.textContent='Report unavailable';}
  }
  if(designPreview){
