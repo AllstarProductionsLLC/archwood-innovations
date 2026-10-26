@@ -109,6 +109,8 @@ Create the `exports` directory locally first; it is ignored by git. The command 
 
 Gmail's send API does not provide Resend-style send idempotency keys. The code therefore claims a persistent mail-log entry transactionally before sending. Accepted attempts are reused, while uncertain/interrupted attempts are **not automatically resent**. If a connection fails after Google may have accepted a message, check the mailbox and mail log before taking manual action. A stable Message-ID helps reconciliation but is not itself a promise that Gmail deduplicates messages.
 
+Owner notification subjects begin with `[HELP REQUESTED]` when the visitor opted into contact, or `[REPORT OPENED]` otherwise. Both include the available initial report findings, evidence, confidence, selected PHP advisories, and limitations inline, without a visitor access token. These are snapshots at opening time, not later expanded results. Gmail filters can label messages whose subject contains `[HELP REQUESTED]`. The email copies follow Workspace retention separately from Firestore cleanup.
+
 The owner notification is separate from the visitor's access email and never includes their private report token. It is best effort, not a guaranteed background queue. Notification failures remain in the access record; accepted or ambiguous mail attempts are protected from blind replay. An opened report link is not proof of website ownership or a qualified sales lead.
 
 ## 4. Domains, retention, and testing
