@@ -54,6 +54,14 @@
   ],
   "rewrites": [
     {
+      "source": "/client-portal",
+      "destination": "/api/client-portal"
+    },
+    {
+      "source": "/client-portal/",
+      "destination": "/api/client-portal"
+    },
+    {
       "source": "/alessandrocaffe",
       "destination": "/api/alessandrocaffe"
     },
