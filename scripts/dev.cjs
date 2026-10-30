@@ -2,7 +2,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const handlers = { '/api/security-scan':require('../api/security-scan.js'), '/api/security-report':require('../api/security-report.js'), '/api/security-retention':require('../api/security-retention.js') };
+const handlers = { '/client-portal':require('../api/client-portal.js'), '/client-portal/':require('../api/client-portal.js'), '/api/client-portal':require('../api/client-portal.js'), '/alessandrocaffe':require('../api/alessandrocaffe.js'), '/alessandrocaffe/':require('../api/alessandrocaffe.js'), '/api/alessandrocaffe':require('../api/alessandrocaffe.js'), '/api/security-scan':require('../api/security-scan.js'), '/api/security-report':require('../api/security-report.js'), '/api/security-retention':require('../api/security-retention.js') };
 const config = require('../vercel.json');
 const root = path.resolve(__dirname,'../dist');
 const types = { '.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.png':'image/png', '.webp':'image/webp', '.woff':'font/woff', '.xml':'application/xml', '.txt':'text/plain', '.svg':'image/svg+xml' };
